@@ -29,7 +29,8 @@ export default class LandingScreen extends React.Component{
             userEmail : '',
             userPassword: '',
             data: firebase.database(),
-            auth: firebase.auth()
+            auth: firebase.auth(),
+            signInError: ''
         };
         
     }
@@ -45,14 +46,19 @@ export default class LandingScreen extends React.Component{
           err = error;
           console.log(error);
           console.log("Not registered due to error.");
+          
         })
       }
-
+      
+      //No error
       if(!err){
         await this.signIn();
-        
+
+        this.setState({"signInError": ""});
       }
-      
+      else{
+        this.setState({"signInError": "Invalid email/password"});
+      }
         //console.log( firebase.auth().currentUser.uid);
     }
 
@@ -64,15 +70,22 @@ export default class LandingScreen extends React.Component{
       await firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(error){
         err = error;
           console.log(error);
-          console.log("Not registered due to error.");
+          console.log("Not signed in due to error.");
       })
 
       if(!err && firebase.auth().currentUser.uid != null){
-        console.log("Successful sign in, continue to next page")
+        console.log("Successful sign in, continue to next page");
+        
+        //No error
+        this.setState({"signInError": ""});
+      }
+      else{
+        this.setState({"signInError": "Invalid email/password"});
       }
     }
 
     render(){
+      console.log(this.state.signInError);
         return (
             <View style={styles.container}>
 
@@ -113,6 +126,15 @@ export default class LandingScreen extends React.Component{
                 <TouchableOpacity style={styles.button} onPress = {() => this.register()}>
                   <Text>Register</Text>
                 </TouchableOpacity>
+
+                {/*  The code below will conditionally render error text  */}
+                {this.state.signInError.length > 1 && 
+                <Text style={styles.error}>Invalid email/password</Text>
+                }
+                {this.state.signInError.length <1 && 
+                <Text style={styles.noError}>Valid</Text>
+                }
+
               </View>
               
               <View style ={styles.generic}/>
@@ -123,6 +145,13 @@ export default class LandingScreen extends React.Component{
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: '#a8a8a8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   generic:{
     flex:1,
     width: '100%',
@@ -138,13 +167,6 @@ const styles = StyleSheet.create({
   spacer:{
     flex:0.4,
     width: '100%',
-  },
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: '#a8a8a8',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   header:{
     flex: 1,
@@ -199,5 +221,11 @@ const styles = StyleSheet.create({
     shadowRadius: 1, //IOS
     backgroundColor: '#fff',
     elevation: 2, // Android
-  }
+  },
+  error:{
+    color: 'red'
+  },
+  noError:{
+    color: '#a8a8a8'
+  },
 });
