@@ -7,6 +7,7 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
 import LandingScreen from './Screens/LandingScreen';
+import SignUpScreen from './Screens/SignUpScreen';
 
 export default class App extends React.Component {
   render(){
@@ -26,10 +27,18 @@ const styles = StyleSheet.create({
 });
 
 const AppNavigator = createStackNavigator({
-  Home: {
-    screen: LandingScreen,
-    navigationOptions: { header: null } 
+  
+  LandingScreen: LandingScreen,
+  SignUpScreen: SignUpScreen,
   },
-});
+  {
+    initialRouteName: 'LandingScreen',
+    headerMode: 'none'
+  }
+  // {Home: {
+  //   screen: SignUpScreen,
+  //   screen: LandingScreen,
+  //   navigationOptions: { header: null }  }
+);
 
 const AppContainer = createAppContainer(AppNavigator);

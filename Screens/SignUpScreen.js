@@ -7,28 +7,82 @@ import {firebaseConfig} from './FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
-
-export default class LandingScreen extends React.Component{
+export default class SignUpScreen extends React.Component{
     constructor(props){
-        super(props);
-
+        super(props)
+          
         this.state = {
             userEmail : '',
             userPassword: '',
+            userPasswordInitial: '',
             data: firebase.database(),
             auth: firebase.auth(),
-            signInError: ''
+            signUpError: '',
+            success: false
         };
-        
+
     }
 
     async register(email, password){
-      console.log("Navigating to registration screen");
-      this.props.navigation.navigate('SignUpScreen');
+      var email = this.state.userEmail;
+      var pass = this.state.userPassword;
+      var initialPass = this.state.userPasswordInitial;
+      var err = "";
+
+      if(pass!=initialPass && email.length>6){
+        this.setState({"signUpError": "Passwords do not match", 'success': false});
+        return;
+      }
+
+      if(email.length>6 && pass.length>=6 && pass==initialPass){
+        //Do Regex then register
+        
+        await firebase.auth().createUserWithEmailAndPassword(email, pass).catch(function(error){
+          err = error;
+          console.log(error);
+          console.log("Not registered due to error.");
+          
+        })
+        console.log("Registering...");
+      }
+      
+      //No error
+      if(err == ""){
+        //await this.signIn();
+        //then navigate to main page
+        console.log("No error")
+        this.setState({"signUpError": "",'success': true});
+      }
+      else{
+        this.setState({"signUpError": "Invalid email/password", 'success': false});
+      }
+      console.log(err)
+        //console.log( firebase.auth().currentUser.uid);
     }
 
+    // async signIn(){
+    //   var email = this.state.userEmail;
+    //   var pass = this.state.userPassword;
+    //   var err;
+
+    //   await firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(error){
+    //     err = error;
+    //       console.log(error);
+    //       console.log("Not signed in due to error.");
+    //   })
+
+    //   if(!err && firebase.auth().currentUser.uid != null){
+    //     console.log("Successful sign in, continue to next page");
+        
+    //     //No error
+    //     this.setState({"signUpError": ""});
+    //   }
+    //   else{
+    //     this.setState({"signUpError": "Invalid email/password"});
+    //   }
+    // }
+
     render(){
-      console.log(this.state.signInError);
         return (
             <View style={styles.container}>
 
@@ -50,10 +104,20 @@ export default class LandingScreen extends React.Component{
                 </TextInput>
               </View>
 
-              <View style ={styles.generic}>
+              <View style ={styles.password}>
                 <TextInput type="text" style={styles.inputPass} placeholder = "Password"
+                onChangeText = {(text) => this.setState({"userPasswordInitial": text})
+                }
+                value = {this.state.userPasswordInitial}
+                autoCapitalize = "none"
+                autoCompleteType = "password"
+                autoCorrect = {false}
+                secureTextEntry={true}
+                ></TextInput>
+              
+                <TextInput type="text" style={styles.inputPass} placeholder = "Confirm Password"
                 onChangeText = {(text) => this.setState({"userPassword": text})
-              }
+                }
                 value = {this.state.userPassword}
                 autoCapitalize = "none"
                 autoCompleteType = "password"
@@ -61,22 +125,23 @@ export default class LandingScreen extends React.Component{
                 secureTextEntry={true}
                 ></TextInput>
               </View>  
-              
+
               <View style ={styles.generic}>
-                <TouchableOpacity style={styles.button} onPress = {() => this.signIn()}>
-                    <Text >Sign In</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress = {() => this.register()}>
                   <Text>Register</Text>
                 </TouchableOpacity>
 
                 {/*  The code below will conditionally render error text  */}
-                {this.state.signInError.length > 1 && 
-                <Text style={styles.error}>Invalid email/password</Text>
+                {this.state.signUpError.length > 1 && this.state.success == false &&
+                <Text style={styles.error}>{this.state.signUpError}</Text>
                 }
-                {this.state.signInError.length <1 && 
+                { this.state.success == true &&
+                <Text style={styles.success}>Registered</Text>
+                }
+                {this.state.signUpError.length <1 && this.state.success == false &&
                 <Text style={styles.noError}>Valid</Text>
                 }
+                
 
               </View>
               
@@ -102,7 +167,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   email:{
-    flex:.4,
+    flex:.35,
+    width: '100%',
+    alignItems: "center",
+    justifyContent: "space-around",
+  },
+  password:{
+    flex:1,
+    paddingTop: '2%',
     width: '100%',
     alignItems: "center",
     justifyContent: "space-around",
@@ -170,5 +242,8 @@ const styles = StyleSheet.create({
   },
   noError:{
     color: '#a8a8a8'
+  },
+  success:{
+    color: 'green'
   },
 });
