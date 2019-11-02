@@ -8,6 +8,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 
 import LandingScreen from './Screens/LandingScreen';
 import SignUpScreen from './Screens/SignUpScreen';
+import MainScreen from './Screens/MainScreen';
 
 export default class App extends React.Component {
   render(){
@@ -30,15 +31,15 @@ const AppNavigator = createStackNavigator({
   
   LandingScreen: LandingScreen,
   SignUpScreen: SignUpScreen,
+  MainScreen: MainScreen,
   },
   {
     initialRouteName: 'LandingScreen',
-    headerMode: 'none'
+    headerMode: 'none',
+    header: {
+      left: null,
+    }
   }
-  // {Home: {
-  //   screen: SignUpScreen,
-  //   screen: LandingScreen,
-  //   navigationOptions: { header: null }  }
 );
 
 const AppContainer = createAppContainer(AppNavigator);

@@ -7,7 +7,6 @@ import {firebaseConfig} from './FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
-
 export default class LandingScreen extends React.Component{
     constructor(props){
         super(props);
@@ -19,12 +18,33 @@ export default class LandingScreen extends React.Component{
             auth: firebase.auth(),
             signInError: ''
         };
-        
     }
 
     async register(email, password){
       console.log("Navigating to registration screen");
       this.props.navigation.navigate('SignUpScreen');
+    }
+    async signIn(){
+      var email = this.state.userEmail;
+      var pass = this.state.userPassword;
+      var err="";
+
+      await firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(error){
+        err = error;
+          console.log(error);
+          console.log("Not signed in due to error.");
+      })
+
+      if(err=="" && firebase.auth().currentUser.uid != null){
+        console.log("Successful sign in, continue to next page");
+        
+        //No error
+        this.setState({"signInError": ""});
+        this.props.navigation.navigate('MainScreen');
+      }
+      else{
+        this.setState({"signInError": "Invalid email/password"});
+      }
     }
 
     render(){
