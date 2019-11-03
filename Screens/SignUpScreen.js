@@ -6,6 +6,7 @@ import * as firebase from 'firebase';
 import {firebaseConfig} from './FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
+import { stringify } from 'qs';
 
 export default class SignUpScreen extends React.Component{
     constructor(props){
@@ -18,6 +19,7 @@ export default class SignUpScreen extends React.Component{
             data: firebase.database(),
             auth: firebase.auth(),
             signUpError: '',
+            phoneNumber: null,
             success: false
         };
 
@@ -27,9 +29,19 @@ export default class SignUpScreen extends React.Component{
       var email = this.state.userEmail;
       var pass = this.state.userPassword;
       var initialPass = this.state.userPasswordInitial;
+      var phone = this.state.phoneNumber;
       var err = "";
 
-      if(pass!=initialPass && email.length>6){
+      
+      if(email.length<=0 || pass.length<=0){
+        this.setState({"signUpError": "Please enter email/password", 'success': false});
+        return;
+      }
+      else if ((phoneNumber== null) || p(honeNumber.length <= 11 && phoneNumber.length>=10)){
+        this.setState({"signUpError": "Phone number invalid.", 'success': false});
+        return;
+      }
+      else if(pass!=initialPass && email.length>6){
         this.setState({"signUpError": "Passwords do not match", 'success': false});
         return;
       }
@@ -46,12 +58,18 @@ export default class SignUpScreen extends React.Component{
         console.log("Registering...");
       }
       
+        if(await firebase.auth().fetchSignInMethodsForEmail(email)){
+          this.setState({"signUpError": "Email already in use", 'success': false});
+          return;
+        }
+
+
       //No error
       if(err == ""){
-        //await this.signIn();
         //then navigate to main page
         console.log("No error")
         this.setState({"signUpError": "",'success': true});
+        await this.signIn(email, pass);
       }
       else{
         this.setState({"signUpError": "Invalid email/password", 'success': false});
@@ -60,27 +78,26 @@ export default class SignUpScreen extends React.Component{
         //console.log( firebase.auth().currentUser.uid);
     }
 
-    // async signIn(){
-    //   var email = this.state.userEmail;
-    //   var pass = this.state.userPassword;
-    //   var err;
+    async signIn(email, pass){
+      var err="";
 
-    //   await firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(error){
-    //     err = error;
-    //       console.log(error);
-    //       console.log("Not signed in due to error.");
-    //   })
+      await firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(error){
+        err = error;
+          console.log(error);
+          console.log("Not signed in due to error.");
+      })
 
-    //   if(!err && firebase.auth().currentUser.uid != null){
-    //     console.log("Successful sign in, continue to next page");
+      if(err=="" && firebase.auth().currentUser.uid != null){
+        console.log("Successful sign in, continue to next page");
         
-    //     //No error
-    //     this.setState({"signUpError": ""});
-    //   }
-    //   else{
-    //     this.setState({"signUpError": "Invalid email/password"});
-    //   }
-    // }
+        //No error
+        this.props.navigation.navigate('MainScreen');
+      }
+      else{
+        //Error signing in
+        console.log("Error signing in with registered credentials");
+      }
+    }
 
     render(){
         return (
@@ -93,7 +110,8 @@ export default class SignUpScreen extends React.Component{
               <View style ={styles.spacer}/>
 
               <View style ={styles.email}>
-                <TextInput type="text" style={styles.inputEmail} placeholder = "Email Address" keyboardType = "email-address" 
+                <TextInput type="text" style={styles.inputEmail} 
+                  placeholder = "Email Address" keyboardType = "email-address" textContentType = "emailAddress" 
                   onChangeText = {(text) => this.setState({"userEmail": text})
                                 }
                   value = {this.state.userEmail}
@@ -105,25 +123,37 @@ export default class SignUpScreen extends React.Component{
               </View>
 
               <View style ={styles.password}>
-                <TextInput type="text" style={styles.inputPass} placeholder = "Password"
-                onChangeText = {(text) => this.setState({"userPasswordInitial": text})
-                }
-                value = {this.state.userPasswordInitial}
-                autoCapitalize = "none"
-                autoCompleteType = "password"
-                autoCorrect = {false}
-                secureTextEntry={true}
+                
+                <TextInput type="text" style={styles.inputPass} placeholder = "Phone Number (10 or 11 digits)" keyboardType = "phone-pad"  
+                  textContentType = "telephoneNumber" dataDetectorTypes = "phoneNumber" 
+                  onChangeText = {(text) => this.setState({"phoneNumber": text})
+                              }
+                  value = {this.state.phoneNumber}
+                  autoCapitalize = "none"
+                  autoCompleteType = "tel"
+                  autoCorrect = {false}
+                ></TextInput>
+
+                <TextInput type="text" style={styles.inputPass} placeholder = "Password" textContentType = "password"
+                  onChangeText = {(text) => this.setState({"userPasswordInitial": text})
+                              }
+                  value = {this.state.userPasswordInitial}
+                  autoCapitalize = "none"
+                  autoCompleteType = "password"
+                  autoCorrect = {false}
+                  secureTextEntry={true}
                 ></TextInput>
               
-                <TextInput type="text" style={styles.inputPass} placeholder = "Confirm Password"
-                onChangeText = {(text) => this.setState({"userPassword": text})
-                }
-                value = {this.state.userPassword}
-                autoCapitalize = "none"
-                autoCompleteType = "password"
-                autoCorrect = {false}
-                secureTextEntry={true}
+                <TextInput type="text" style={styles.inputPass} placeholder = "Confirm Password" textContentType = "password"
+                  onChangeText = {(text) => this.setState({"userPassword": text})
+                              }
+                  value = {this.state.userPassword}
+                  autoCapitalize = "none"
+                  autoCompleteType = "password"
+                  autoCorrect = {false}
+                  secureTextEntry={true}
                 ></TextInput>
+
               </View>  
 
               <View style ={styles.generic}>
@@ -167,13 +197,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   email:{
-    flex:.35,
+    flex:.4,
     width: '100%',
     alignItems: "center",
     justifyContent: "space-around",
   },
   password:{
-    flex:1,
+    flex:1.5,
     paddingTop: '2%',
     width: '100%',
     alignItems: "center",
@@ -210,7 +240,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold"
   },
   inputPass:{
-    flex:0.35,
+    flex:0.25,
     textAlign: 'left',
     width: '75%',
     backgroundColor: 'white',

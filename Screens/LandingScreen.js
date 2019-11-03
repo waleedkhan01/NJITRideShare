@@ -89,7 +89,9 @@ export default class LandingScreen extends React.Component{
                 <TouchableOpacity style={styles.button} onPress = {() => this.register()}>
                   <Text>Register</Text>
                 </TouchableOpacity>
-
+                <TouchableOpacity style={styles.buttonDark} onPress = {() => this.register()}>
+                  <Text style = {styles.buttonDarkText}>Reset Password</Text>
+                </TouchableOpacity>
                 {/*  The code below will conditionally render error text  */}
                 {this.state.signInError.length > 1 && 
                 <Text style={styles.error}>Invalid email/password</Text>
@@ -184,6 +186,26 @@ const styles = StyleSheet.create({
     shadowRadius: 1, //IOS
     backgroundColor: '#fff',
     elevation: 2, // Android
+  },
+  buttonDark:{
+    flex: 0.2,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+    borderColor: 'black',
+    borderWidth: 3,
+    borderRadius: 15,
+    width: "30%",
+    shadowColor: 'rgba(0,0,0, .4)', // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, //IOS
+    elevation: 2, // Android
+    color:'white',
+  },
+  buttonDarkText: {
+    color: 'white',
+    fontSize: 12
   },
   error:{
     color: 'red'
