@@ -9,6 +9,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import LandingScreen from './Screens/LandingScreen';
 import SignUpScreen from './Screens/SignUpScreen';
 import MainScreen from './Screens/MainScreen';
+import PasswordChangeScreen from './Screens/PasswordChangeScreen';
 
 export default class App extends React.Component {
   render(){
@@ -32,6 +33,7 @@ const AppNavigator = createStackNavigator({
   LandingScreen: LandingScreen,
   SignUpScreen: SignUpScreen,
   MainScreen: MainScreen,
+  PasswordChangeScreen: PasswordChangeScreen,
   },
   {
     initialRouteName: 'LandingScreen',

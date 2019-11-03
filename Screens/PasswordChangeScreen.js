@@ -7,51 +7,43 @@ import {firebaseConfig} from './FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
-export default class LandingScreen extends React.Component{
+export default class PasswordChangeScreen extends React.Component{
     constructor(props){
         super(props);
 
         this.state = {
             userEmail : '',
-            userPassword: '',
             data: firebase.database(),
             auth: firebase.auth(),
-            signInError: ''
+            signInError: '',
+            success: false
         };
     }
 
-    async register(email, password){
-      console.log("Navigating to registration screen");
-      this.props.navigation.navigate('SignUpScreen');
+    componentWillMount(){
+      this.setState({"success": false});
     }
-    async signIn(){
-      var email = this.state.userEmail;
-      var pass = this.state.userPassword;
-      var err="";
 
-      await firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(error){
+
+    async resetPassword(email){
+      var email = this.state.userEmail;
+      var err;
+      await this.state.auth.sendPasswordResetEmail(email).catch(function(error){
         err = error;
           console.log(error);
-          console.log("Not signed in due to error.");
+          console.log("Not sent due to error.");
       })
 
-      if(err=="" && firebase.auth().currentUser.uid != null){
-        console.log("Successful sign in, continue to next page");
-        
+      if(err==null){
         //No error
-        this.setState({"signInError": ""});
-        this.props.navigation.navigate('MainScreen');
+        this.setState({"signInError": "", success: true});
       }
       else{
-        this.setState({"signInError": "Invalid email/password"});
+        this.setState({"signInError": "Invalid email", success: false});
       }
-    }
-    passwordChange(){
-      this.props.navigation.navigate('PasswordChangeScreen');
     }
 
     render(){
-      console.log(this.state.signInError);
         return (
             <View style={styles.container}>
 
@@ -72,36 +64,22 @@ export default class LandingScreen extends React.Component{
                 >
                 </TextInput>
               </View>
-
-              <View style ={styles.generic}>
-                <TextInput type="text" style={styles.inputPass} placeholder = "Password"
-                onChangeText = {(text) => this.setState({"userPassword": text})
-              }
-                value = {this.state.userPassword}
-                autoCapitalize = "none"
-                autoCompleteType = "password"
-                autoCorrect = {false}
-                secureTextEntry={true}
-                ></TextInput>
-              </View>  
               
               <View style ={styles.generic}>
-                <TouchableOpacity style={styles.button} onPress = {() => this.signIn()}>
-                    <Text >Sign In</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress = {() => this.register()}>
-                  <Text>Register</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonDark} onPress = {() => this.passwordChange()}>
-                  <Text style = {styles.buttonDarkText}>Reset Password</Text>
+                <TouchableOpacity style={styles.buttonDark} onPress = {() => this.resetPassword()}>
+                  <Text style = {styles.buttonDarkText}>Send Password Reset Email</Text>
                 </TouchableOpacity>
                 {/*  The code below will conditionally render error text  */}
                 {this.state.signInError.length > 1 && 
-                <Text style={styles.error}>Invalid email/password</Text>
+                <Text style={styles.error}>{this.state.signInError}</Text>
                 }
-                {this.state.signInError.length <1 && 
+                {this.state.signInError.length <1 && this.state.success == true && 
+                <Text style={styles.success}>Email Sent</Text>
+                }
+                {this.state.signInError.length <1 && this.state.success == false &&
                 <Text style={styles.noError}>Valid</Text>
                 }
+
               </View>
               
               <View style ={styles.generic}/>
@@ -126,7 +104,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   email:{
-    flex:.4,
+    flex:.25,
     width: '100%',
     alignItems: "center",
     justifyContent: "space-around",
@@ -197,7 +175,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 3,
     borderRadius: 15,
-    width: "30%",
+    width: "50%",
     shadowColor: 'rgba(0,0,0, .4)', // IOS
     shadowOffset: { height: 1, width: 1 }, // IOS
     shadowOpacity: 1, // IOS
@@ -215,4 +193,7 @@ const styles = StyleSheet.create({
   noError:{
     color: '#a8a8a8'
   },
+  success:{
+    color: 'green'
+  }
 });
