@@ -31,13 +31,14 @@ export default class SignUpScreen extends React.Component{
       var initialPass = this.state.userPasswordInitial;
       var phone = this.state.phoneNumber;
       var err = "";
+      var emailExists = false;
 
       
       if(email.length<=0 || pass.length<=0){
         this.setState({"signUpError": "Please enter email/password", 'success': false});
         return;
       }
-      else if ((phoneNumber== null) || p(honeNumber.length <= 11 && phoneNumber.length>=10)){
+      else if ((phone == null) || (phone.length > 11 || phone.length<10)){
         this.setState({"signUpError": "Phone number invalid.", 'success': false});
         return;
       }
@@ -45,30 +46,48 @@ export default class SignUpScreen extends React.Component{
         this.setState({"signUpError": "Passwords do not match", 'success': false});
         return;
       }
+      
+      
+      await this.state.data.ref().child('users').orderByChild('email').equalTo(email).once('value', function(snapshot){
+        if (snapshot.exists()) {
+          emailExists = true;
+        }
+        else{
+          
+        }
+      })
+      if(emailExists == true){
+        this.setState({"signUpError": "Email already in use", 'success': false});
+        return;
+      }
 
-      if(email.length>6 && pass.length>=6 && pass==initialPass){
+      if(email.length>5 && pass.length>=6 && pass==initialPass){
         //Do Regex then register
         
         await firebase.auth().createUserWithEmailAndPassword(email, pass).catch(function(error){
           err = error;
           console.log(error);
           console.log("Not registered due to error.");
-          
         })
         console.log("Registering...");
       }
       
-        if(await firebase.auth().fetchSignInMethodsForEmail(email)){
-          this.setState({"signUpError": "Email already in use", 'success': false});
-          return;
+      //No error, registration successful -> save user data to database and sign them in
+      if(err == ""){
+        
+        console.log("No error")
+        this.setState({"signUpError": "",'success': true});
+
+        //Save to firebase        
+        var userID = firebase.auth().currentUser.uid;
+        if(userID != null){
+          this.state.data.ref('users/' + userID).set({
+            email: email,
+            phoneNumber: phone,
+          });
         }
 
 
-      //No error
-      if(err == ""){
-        //then navigate to main page
-        console.log("No error")
-        this.setState({"signUpError": "",'success': true});
         await this.signIn(email, pass);
       }
       else{

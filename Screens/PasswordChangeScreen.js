@@ -35,6 +35,8 @@ export default class PasswordChangeScreen extends React.Component{
       })
 
       if(err==null){
+        console.log("Successful sign in, continue to next page");
+        
         //No error
         this.setState({"signInError": "", success: true});
       }
