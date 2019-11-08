@@ -110,7 +110,7 @@ export default class SignUpScreen extends React.Component{
         console.log("Successful sign in, continue to next page");
         
         //No error
-        this.props.navigation.navigate('MainScreen');
+        this.props.navigation.navigate('BookableRides');
       }
       else{
         //Error signing in

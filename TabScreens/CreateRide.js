@@ -3,14 +3,12 @@ import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity} from 'rea
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
-import {firebaseConfig} from './FirebaseHelper';
+import {firebaseConfig} from '../Screens/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
+import { createBottomTabNavigator } from 'react-navigation-tabs';
 
-
-
-
-export default class MainScreen extends React.Component{
+export default class CreateRide extends React.Component{
     constructor(props){
         super(props);
 
@@ -19,7 +17,7 @@ export default class MainScreen extends React.Component{
     render(){
         return (
             <View style = {styles.container}>
-              <Text>Welcome</Text>
+              <Text>Create Ride</Text>
             </View>
         );
     }

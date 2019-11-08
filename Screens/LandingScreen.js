@@ -40,7 +40,7 @@ export default class LandingScreen extends React.Component{
         
         //No error
         this.setState({"signInError": ""});
-        this.props.navigation.navigate('MainScreen');
+        this.props.navigation.navigate('BookableRides');
       }
       else{
         this.setState({"signInError": "Invalid email/password"});
