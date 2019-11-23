@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, Image} from 'react-native';
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
@@ -7,21 +7,28 @@ import {firebaseConfig} from '../Screens/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
+import {randomString} from 'random-string';
 
-export default class CreateRide extends React.Component{
-    constructor(props){
-        super(props);
+import CreateRideMenu from './CreateRideMenu'
+import CreateRideBegin from './CreateRideBegin'
 
-    }
+// export default class CreateRide extends React.Component{
+//     constructor(props){
+//         super(props);
+//     }
 
-    render(){
-        return (
-            <View style = {styles.container}>
-              <Text>Create Ride</Text>
-            </View>
-        );
-    }
-}
+//     createRide(){
+//       this.props.navigation.navigate('CreateRideMenu');
+//     }
+
+//     render(){
+//         return (
+//             <View style = {styles.container}>
+//              <RideStack/>
+//             </View>
+//         );
+//     }
+// }
 
 const styles = StyleSheet.create({
   container: {
@@ -38,3 +45,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   }
 });
+
+const RideStack = createStackNavigator({
+  
+  CreateRideMenu: CreateRideMenu,
+  CreateRideBegin: CreateRideBegin
+  },
+  {
+    initialRouteName: 'CreateRideBegin',
+    headerMode: 'none',
+    header: {
+      left: null,
+    }
+  }
+);
+
+const AppContainer = createAppContainer(RideStack);
+export default AppContainer;

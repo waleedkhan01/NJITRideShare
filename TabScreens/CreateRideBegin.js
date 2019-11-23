@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, Image} from 'react-native';
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
@@ -7,17 +7,34 @@ import {firebaseConfig} from '../Screens/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
+import {randomString} from 'random-string';
 
-export default class BookableRides extends React.Component{
+import CreateRideMenu from './CreateRideMenu'
+
+export default class CreateRide extends React.Component{
     constructor(props){
         super(props);
+    }
 
+    createRide(){
+      console.log("navigating");
+      this.props.navigation.navigate('CreateRideMenu');
     }
 
     render(){
         return (
             <View style = {styles.container}>
-              <Text>Book Rides</Text>
+              <TouchableOpacity
+                onPress = {() => this.createRide()}
+              >
+              
+                <Image
+                style={{width: 125, height: 125}}
+                source={require('../assets/Images/Plus.png')}
+                />
+
+              </TouchableOpacity>
+             
             </View>
         );
     }
@@ -36,5 +53,5 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: "center",
     justifyContent: "space-around",
-  },
+  }
 });

@@ -8,6 +8,10 @@ import { StyleSheet, Text, View } from 'react-native';
 //yarn add react-native-reanimated react-native-gesture-handler react-native-screens@^1.0.0-alpha.23
 //also expo install react-native-gesture-handler (if you npm install you will receive warnings)
 //yarn add react-navigation-tabs
+//npm install random-string
+//npm install react-native-modal-datetime-picker
+//react-native-dark-mode
+
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -19,12 +23,16 @@ import PasswordChangeScreen from './Screens/PasswordChangeScreen';
 
 import BookableRides from './TabScreens/BookableRides';
 import CreateRide from './TabScreens/CreateRide';
+import CreateRideMenu from './TabScreens/CreateRideMenu';
+import CreateRideBegin from './TabScreens/CreateRideBegin';
 import MyRides from './TabScreens/MyRides';
 import SettingsScreen from './TabScreens/SettingsScreen';
+
 
 export default class App extends React.Component {
   render(){
     return (
+      
       <View style = {styles.container}>
         <AppContainer/>
       </View>
@@ -65,7 +73,6 @@ const TabNavigator = createBottomTabNavigator({
       headerBackTitle: null,
     }),
   },
-  
   CreateRide: {
     screen: CreateRide,
     navigationOptions: () => ({
@@ -93,7 +100,6 @@ const TabNavigator = createBottomTabNavigator({
     order: ['BookableRides', 'CreateRide', 'MyRides', 'SettingsScreen']
   }
 );
-
 
 const AppStack = createStackNavigator(
   {
