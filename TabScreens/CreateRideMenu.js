@@ -15,56 +15,136 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 export default class CreateRideMenu extends React.Component{
     constructor(props){
         super(props);
-        var randomString = require('random-string');
-        var x = randomString(); // x contains now a random String with the length of 8
-        
- 
+       
         var newestDate = new Date();
         newestDate.setDate(newestDate.getDate() + 7)
 
         this.state = {
-         random: x,
          date: new Date(),
+         formattedDate: '',
+         time: new Date(),
          newestDate: newestDate,
          mode: 'date',
          show: false,
-         isDateTimePickerVisible: false,
+         isDatePickerVisible: false,
+         isTimePickerVisible: false,
          isDarkModeEnabled: true
         };
     }
     
-    showDateTimePicker = () => {
+    showDatePicker = () => {
       console.log()
-      this.setState({ isDateTimePickerVisible: true, isDarkModeEnabled: true});
+      this.setState({ isDatePickerVisible: true, isDarkModeEnabled: true});
     };
   
-    hideDateTimePicker = () => {
-      this.setState({ isDateTimePickerVisible: false});
+    hideDatePicker = () => {
+      this.setState({ isDatePickerVisible: false});
     };
   
     handleDatePicked = date => {
       console.log("A date has been picked: ", date);
-      this.hideDateTimePicker();
+      var formatted = this.formatDate(date)
+      this.setState({date: date, formattedDate: formatted})
+      this.hideDatePicker();
     };
 
-    
+    //Formats date into mm-dd-yyyy
+    formatDate(date){
+      var y = date.getFullYear();
+      var m = date.getMonth();
+      var d = date.getDate();
+      var formatted = '' + y +'-'+ m +'-'+ d;
+      return formatted;
+    }
+
+    //Format time into HH:MM
+    formatTime(date){
+      var h = date.getHours();
+      var m = date.getMinutes();
+      var format = '';
+      if(h/12 > 0){
+        var format = ''+ (h%12) + ':' + m + 'PM';
+      }
+      else{
+        var format = ''+h + ':' + m + 'AM';
+      }
+      return format;
+    }
+
+    showTimePicker = () => {
+      console.log()
+      this.setState({ isTimePickerVisible: true, isDarkModeEnabled: true});
+    };
+  
+    hideTimePicker = () => {
+      this.setState({ isTimePickerVisible: false});
+    };
+  
+    handleTimePicked = time => {
+      console.log("A time has been picked: ", time);
+      var formatted = this.formatTime(time);
+      this.setState({time: time, formattedTime : formatted})
+      this.hideTimePicker();
+    };
+
+    generateRID(){
+      var randomString = require('random-string');
+      var x = randomString(); // x contains now a random String with the length of 8
+      //The random string will be used an ID for the new ride
+      
+
+    }
+
+    createRide(){
+      if(this.state.formattedDate != undefined && this.state.formattedTime != undefined){
+        this.props.navigation.goBack();
+      }
+    }
+
     render(){
 
         return (
             <View style = {styles.container}>
-             <Text style={styles.header}>Create A Ride</Text>
-             <Button title="Show DatePicker" onPress={this.showDateTimePicker} />
+              <Text style={styles.header}>Create A Ride</Text>
+              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showDatePicker()}>
+                  <Text style = {styles.buttonLightText}>Select Date</Text>
+              </TouchableOpacity>
+
               <DateTimePicker
-                isVisible={this.state.isDateTimePickerVisible}
+                isVisible={this.state.isDatePickerVisible}
                 onConfirm={this.handleDatePicked}
-                onCancel={this.hideDateTimePicker}
+                onCancel={this.hideDatePicker}
                 isDarkModeEnabled = {true}
                 minimumDate = {this.state.date}
                 maximumDate = {this.state.maximumDate}
+                mode = "date"
               />
 
-              {this.state.random != null &&
-                <Text>{this.state.random} </Text>}
+              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showTimePicker()}>
+                  <Text style = {styles.buttonLightText}>Select Time</Text>
+              </TouchableOpacity>
+              
+              <DateTimePicker
+                isVisible={this.state.isTimePickerVisible}
+                onConfirm={this.handleTimePicked}
+                onCancel={this.hideTimePicker}
+                isDarkModeEnabled = {true}
+                mode = "time"
+              />
+
+
+              <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
+                  <Text style = {styles.buttonDarkText}>Confirm Ride</Text>
+              </TouchableOpacity>
+              { this.state.formattedDate == undefined || this.state.formattedTime == undefined && 
+                <Text style = {styles.dateTextRed}> Please Select a Date and Time</Text>
+              }
+              { this.state.formattedTime != undefined  && this.state.formattedDate != undefined &&
+              <Text style = {styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: ' + this.state.formattedTime} </Text>
+              } 
+
+              <Text style = {styles.spacer}>
+              </Text>
                 
             </View>
         );
@@ -77,22 +157,85 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#a8a8a8',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
   },
   generic:{
     flex:1,
     width: '100%',
     alignItems: "center",
-    justifyContent: "space-around",
+    justifyContent: "center",
   },
   header:{
-    paddingTop: "25%",
+    flex:0.1,
+    paddingTop: "15%",
     color: 'black',
     fontWeight: "800",
     fontSize: 33,
-    textAlign: "center"
+    textAlign: "center",
   },
   select:{
     fontSize: 35
+  },
+  styles:{
+    flex:1,
+  },
+  buttonLight:{
+    flex: 0.1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderColor: 'black',
+    borderWidth: 3,
+    borderRadius: 15,
+    width: "40%",
+    shadowColor: 'rgba(0,0,0, .4)', // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, //IOS
+    elevation: 2, // Android
+    color:'white',
+  },
+  buttonLightText: {
+    color: 'black',
+    fontSize: 12
+  },
+  buttonDark:{
+    flex: 0.075,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+    borderColor: 'black',
+    borderWidth: 3,
+    borderRadius: 15,
+    width: "40%",
+    shadowColor: 'rgba(0,0,0, .4)', // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, //IOS
+    elevation: 2, // Android
+    color:'white',
+  },
+  buttonDarkText: {
+    color: 'white',
+    fontSize: 12
+  },
+  spacer: {
+    flex: 0.01,
+    width: '20%',
+  },
+  dateText: {
+    flex: 0.1,
+    width: '80%',
+    justifyContent: 'center',
+    alignContent: 'center',
+    textAlign: 'center'
+  },
+  dateTextRed: {
+    flex: 0.1,
+    width: '80%',
+    justifyContent: 'center',
+    alignContent: 'center',
+    textAlign: 'center',
+    color: 'red',
   }
 });
