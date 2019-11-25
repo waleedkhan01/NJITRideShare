@@ -20,6 +20,7 @@ export default class CreateRideMenu extends React.Component{
         newestDate.setDate(newestDate.getDate() + 7)
 
         this.state = {
+         data: firebase.database(),
          date: new Date(),
          formattedDate: '',
          time: new Date(),
@@ -42,7 +43,7 @@ export default class CreateRideMenu extends React.Component{
     };
   
     handleDatePicked = date => {
-      console.log("A date has been picked: ", date);
+      
       var formatted = this.formatDate(date)
       this.setState({date: date, formattedDate: formatted})
       this.hideDatePicker();
@@ -72,7 +73,7 @@ export default class CreateRideMenu extends React.Component{
     }
 
     showTimePicker = () => {
-      console.log()
+      
       this.setState({ isTimePickerVisible: true, isDarkModeEnabled: true});
     };
   
@@ -81,7 +82,7 @@ export default class CreateRideMenu extends React.Component{
     };
   
     handleTimePicked = time => {
-      console.log("A time has been picked: ", time);
+      
       var formatted = this.formatTime(time);
       this.setState({time: time, formattedTime : formatted})
       this.hideTimePicker();
@@ -92,13 +93,56 @@ export default class CreateRideMenu extends React.Component{
       var x = randomString(); // x contains now a random String with the length of 8
       //The random string will be used an ID for the new ride
       
+      return x;
 
     }
 
-    createRide(){
+    async createRide(){
+      
+      var RID = this.generateRID()
+      var RIDExists = false;
+
+      console.log("RID:"+ RID)
+
+      var db = await this.state.data.ref().child('rides').child(RID).once('value', function(snapshot){
+        if (snapshot.exists()) {
+          RIDExists = true;
+        }
+        else{ 
+        }
+      }).catch(function(error){
+        console.log(error);
+        console.log("Ride not created due to error.");
+      })
+
+      console.log("RID Exists: "+RIDExists)
+      console.log(db);
+
+      if (RIDExists == true){
+        this.createRide()
+        return;
+      }
+      else{
+        var uid = firebase.auth().currentUser.uid;
+        //if the generated RID is not already used, create a new Ride in the database
+          await this.state.data.ref('rides/' + RID).set({
+            clientLimit: '1',
+            hostUID: uid
+          }).catch(function(error){
+            console.log(error)
+            console.log("ERROR: Unable to create Ride");
+            return;
+          });
+          //Add the ride under the user as well
+          await this.state.data.ref('users/' + uid + '/ridesCreated').update({
+            [RID] : true
+          })
+      }
+
       if(this.state.formattedDate != undefined && this.state.formattedTime != undefined){
         this.props.navigation.goBack();
       }
+      
     }
 
     render(){
@@ -136,13 +180,18 @@ export default class CreateRideMenu extends React.Component{
               <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
                   <Text style = {styles.buttonDarkText}>Confirm Ride</Text>
               </TouchableOpacity>
-              { this.state.formattedDate == undefined || this.state.formattedTime == undefined && 
+              { this.state.formattedDate == undefined && this.state.formattedTime == undefined && 
                 <Text style = {styles.dateTextRed}> Please Select a Date and Time</Text>
               }
+              { this.state.formattedTime == undefined  && this.state.formattedDate != undefined &&
+              <Text style = {styles.dateText}> {'Date: Please Select a Date: ' + '\n' + 'Time: ' + this.state.formattedTime} </Text>
+              } 
+              { this.state.formattedTime != undefined  && this.state.formattedDate == undefined &&
+              <Text style = {styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: Please Select a Time'} </Text>
+              } 
               { this.state.formattedTime != undefined  && this.state.formattedDate != undefined &&
               <Text style = {styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: ' + this.state.formattedTime} </Text>
               } 
-
               <Text style = {styles.spacer}>
               </Text>
                 
