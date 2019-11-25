@@ -20,7 +20,7 @@ import LandingScreen from './Screens/LandingScreen';
 import SignUpScreen from './Screens/SignUpScreen';
 import PasswordChangeScreen from './Screens/PasswordChangeScreen';
 
-
+import BookRide from './TabScreens/BookRide';
 import BookableRides from './TabScreens/BookableRides';
 import CreateRide from './TabScreens/CreateRide';
 import CreateRideMenu from './TabScreens/CreateRideMenu';
@@ -67,7 +67,7 @@ const AuthNavigator = createStackNavigator({
 const TabNavigator = createBottomTabNavigator({
   
   BookableRides: {
-    screen: BookableRides,
+    screen: BookRide,
     navigationOptions: () => ({
       title: `Book`,
       headerBackTitle: null,

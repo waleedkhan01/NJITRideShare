@@ -180,13 +180,13 @@ export default class CreateRideMenu extends React.Component{
               <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
                   <Text style = {styles.buttonDarkText}>Confirm Ride</Text>
               </TouchableOpacity>
-              { this.state.formattedDate == undefined && this.state.formattedTime == undefined && 
+              { this.state.formattedDate == '' && this.state.formattedTime == undefined && 
                 <Text style = {styles.dateTextRed}> Please Select a Date and Time</Text>
               }
-              { this.state.formattedTime == undefined  && this.state.formattedDate != undefined &&
-              <Text style = {styles.dateText}> {'Date: Please Select a Date: ' + '\n' + 'Time: ' + this.state.formattedTime} </Text>
-              } 
               { this.state.formattedTime != undefined  && this.state.formattedDate == undefined &&
+              <Text style = {styles.dateText}> {'Date: Please Select a Date ' + '\n' + 'Time: ' + this.state.formattedTime} </Text>
+              } 
+              { this.state.formattedTime == undefined  && this.state.formattedDate != undefined && this.state.formattedDate != '' &&
               <Text style = {styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: Please Select a Time'} </Text>
               } 
               { this.state.formattedTime != undefined  && this.state.formattedDate != undefined &&

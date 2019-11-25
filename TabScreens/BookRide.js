@@ -9,8 +9,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import {randomString} from 'random-string';
 
-import CreateRideMenu from './CreateRideMenu'
-import CreateRideBegin from './CreateRideBegin'
+import BookableRides from './BookableRides'
 
 const styles = StyleSheet.create({
   container: {
@@ -30,11 +29,10 @@ const styles = StyleSheet.create({
 
 const RideStack = createStackNavigator({
   
-  CreateRideMenu: CreateRideMenu,
-  CreateRideBegin: CreateRideBegin
+  BookableRides: BookableRides,
   },
   {
-    initialRouteName: 'CreateRideBegin',
+    initialRouteName: 'BookableRides',
     headerMode: 'none',
     header: {
       left: null,
