@@ -7,7 +7,6 @@ import {firebaseConfig} from '../Screens/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
-import {randomString} from 'random-string';
 
 import CreateRideMenu from './CreateRideMenu'
 

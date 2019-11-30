@@ -9,13 +9,11 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 //special use
-import {randomString} from 'random-string';
 import DateTimePicker from "react-native-modal-datetime-picker";
 
 export default class CreateRideMenu extends React.Component{
     constructor(props){
         super(props);
-       
         var newestDate = new Date();
         newestDate.setDate(newestDate.getDate() + 7)
 
@@ -88,56 +86,31 @@ export default class CreateRideMenu extends React.Component{
       this.hideTimePicker();
     };
 
-    generateRID(){
-      var randomString = require('random-string');
-      var x = randomString(); // x contains now a random String with the length of 8
-      //The random string will be used an ID for the new ride
-      
-      return x;
-
-    }
-
     async createRide(){
       
-      var RID = this.generateRID()
-      var RIDExists = false;
 
-      console.log("RID:"+ RID)
+      var uid = firebase.auth().currentUser.uid;
+      //if the generated RID is not already used, create a new Ride in the database
+      var pushID = await this.state.data.ref('rides/').push({
+          clientLimit: '1',
+          hostUID: uid,
+          startAddress: true,
+          startLatLong: {lat: '5', long: '5'},
+          endAddress: true,
+          endLatLong:  {lat: '5', long: '5'}, 
+          timeFlex: '15',
+          timeOutOfWay: '15'
+        }).catch(function(error){
+          console.log(error)
+          console.log("ERROR: Unable to create Ride");
+          return;
+        });
 
-      var db = await this.state.data.ref().child('rides').child(RID).once('value', function(snapshot){
-        if (snapshot.exists()) {
-          RIDExists = true;
-        }
-        else{ 
-        }
-      }).catch(function(error){
-        console.log(error);
-        console.log("Ride not created due to error.");
-      })
-
-      console.log("RID Exists: "+RIDExists)
-      console.log(db);
-
-      if (RIDExists == true){
-        this.createRide()
-        return;
-      }
-      else{
-        var uid = firebase.auth().currentUser.uid;
-        //if the generated RID is not already used, create a new Ride in the database
-          await this.state.data.ref('rides/' + RID).set({
-            clientLimit: '1',
-            hostUID: uid
-          }).catch(function(error){
-            console.log(error)
-            console.log("ERROR: Unable to create Ride");
-            return;
-          });
-          //Add the ride under the user as well
-          await this.state.data.ref('users/' + uid + '/ridesCreated').update({
-            [RID] : true
-          })
-      }
+        console.log("PUSH: "+pushID)
+        //Add the ride under the user as well
+        await this.state.data.ref('users/' + uid + '/ridesCreated').update({
+          [pushID.key] : true
+        })
 
       if(this.state.formattedDate != undefined && this.state.formattedTime != undefined){
         this.props.navigation.goBack();

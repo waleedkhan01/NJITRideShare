@@ -8,7 +8,6 @@ import { StyleSheet, Text, View } from 'react-native';
 //yarn add react-native-reanimated react-native-gesture-handler react-native-screens@^1.0.0-alpha.23
 //also expo install react-native-gesture-handler (if you npm install you will receive warnings)
 //yarn add react-navigation-tabs
-//npm install random-string
 //npm install react-native-modal-datetime-picker
 //react-native-dark-mode
 
