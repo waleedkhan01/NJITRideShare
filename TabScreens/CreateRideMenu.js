@@ -10,6 +10,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 //special use
 import DateTimePicker from "react-native-modal-datetime-picker";
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 export default class CreateRideMenu extends React.Component{
     constructor(props){
@@ -27,7 +28,11 @@ export default class CreateRideMenu extends React.Component{
          show: false,
          isDatePickerVisible: false,
          isTimePickerVisible: false,
-         isDarkModeEnabled: true
+         isDarkModeEnabled: true,
+         startLocationlat: '5',
+         startLocationlong: '5',
+         endLocationlat: '5',
+         endLocationlong: '5'
         };
     }
     
@@ -95,9 +100,9 @@ export default class CreateRideMenu extends React.Component{
           clientLimit: '1',
           hostUID: uid,
           startAddress: true,
-          startLatLong: {lat: '5', long: '5'},
+          startLatLong: { lat: this.state.startLocationlat, long: this.state.startLocationlong},
           endAddress: true,
-          endLatLong:  {lat: '5', long: '5'}, 
+          endLatLong: { lat: this.state.endLocationlat, long: this.state.endLocationlong}, 
           timeFlex: '15',
           timeOutOfWay: '15'
         }).catch(function(error){
@@ -148,6 +153,75 @@ export default class CreateRideMenu extends React.Component{
                 isDarkModeEnabled = {true}
                 mode = "time"
               />
+
+              <View style={styles.container}>
+                <GooglePlacesAutocomplete
+                  placeholder='Enter Starting Location'
+                  minLength={2}
+                  autoFocus={false}
+                  returnKeyType={'default'}
+                  listViewDisplayed='auto'
+                  fetchDetails={true}
+                  renderDescription={row => row.description} // custom description render
+                  onPress={(data, details = null) => {
+                    //console.log(data, details);
+                    console.log(details.geometry.location.lat + ' ' + details.geometry.location.lng);
+                    this.setState(startLocationlat => details.geometry.location.lat);
+                    this.setState(startLocationlong => details.geometry.location.lng);
+                  }}
+
+                  query={{
+                    key: 'AIzaSyCkSccKLoUZ2pGuwh35miYfrSVGSFTYcoc',
+                    language: 'en', // language of the results
+                    types: 'address'
+                  }}
+                  styles={{
+                    textInputContainer: {
+                      width: '80%'
+                    },
+                    description: {
+                      fontWeight: 'bold'
+                    },
+                    predefinedPlacesDescription: {
+                      color: '#1faadb'
+                    }
+                  }}
+                  currentLocation={false}
+                />
+
+                <GooglePlacesAutocomplete
+                  placeholder='Enter Ending Location'
+                  minLength={2}
+                  autoFocus={false}
+                  returnKeyType={'default'}
+                  fetchDetails={true}
+                  //renderDescription={row => row.description} // custom description render
+                  onPress={(data, details = null) => { 
+                    //console.log(data, details);
+                    console.log(details.geometry.location.lat + ' ' + details.geometry.location.lng);
+                    this.setState(endLocationlat => details.geometry.location.lat);
+                    this.setState(endLocationlong => details.geometry.location.lng);
+                  }}
+
+                  query={{
+                    key: 'AIzaSyCkSccKLoUZ2pGuwh35miYfrSVGSFTYcoc',
+                    language: 'en', // language of the results
+                    types: 'address'
+                  }}
+                styles={{
+                  textInputContainer: {
+                    width: '80%'
+                  },
+                  description: {
+                    fontWeight: 'bold'
+                  },
+                  predefinedPlacesDescription: {
+                    color: '#1faadb'
+                  }
+                  }}
+                  currentLocation={false}
+                />
+              </View>
 
 
               <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
