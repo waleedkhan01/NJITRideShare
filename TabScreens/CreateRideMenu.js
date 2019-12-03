@@ -186,7 +186,7 @@ export default class CreateRideMenu extends React.Component{
                 onBackdropPress={() => this.setState({ isGoogleAutoCompleteVisible: false })}
               >
                 <View style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-around' }}>
-                <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                <View style={{ alignSelf: 'center', height: 50, width: '80%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                     <Ionicons name="md-close" size={32} color="red" onPress={() => this.hideGoogleAutoComplete()} />
                     <Ionicons name="md-checkmark" size={32} color="green" onPress={() => this.hideGoogleAutoComplete()} />
                   </View>
@@ -227,8 +227,8 @@ export default class CreateRideMenu extends React.Component{
                       }}
                       currentLocation={false}
                     />
-                  </View>
-                </Overlay>
+                 </View>
+               </Overlay>
 
               <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
                   <Text style = {styles.buttonDarkText}>Confirm Ride</Text>
