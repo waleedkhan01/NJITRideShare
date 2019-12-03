@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, FlatList, SafeAreaView} from 'react-native';
+import React, {Component} from 'react';
+import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, FlatList, SafeAreaView, Image} from 'react-native';
 import Constants from 'expo-constants';
 import { blue, black, white } from 'ansi-colors';
 
@@ -11,31 +11,57 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 const DATA = [
   {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
+    id: '1',
+    title: 'December 3rd, 5:00 PM',
+    startAddress: 'home',
+    endAddress: 'NJIT'
   },
   {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
+    id: '2',
+    title: 'December 3rd, 5:30 PM',
+    startAddress: 'NJIT',
+    endAddress: 'home'
   },
   {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
+    id: '3',
+    title: 'December 5th, 9:30 AM',
+    startAddress: 'home',
+    endAddress: 'NJIT'
   },
 ];
 
-function Item({ title }) {
+function Item({ title, startAddress, endAddress}) {
   return (
-    <View style={styles.item}>
-      <Text style={styles.title}>{title}</Text>
-    </View>
+    <TouchableOpacity style={styles.item}>
+      <View style ={styles.itemText}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.subtitle}>{startAddress}</Text>
+        <Text style={styles.subtitle}>{endAddress}</Text>
+      </View>
+      {/* <View style={styles.itemImage}>
+        <Image
+          style={{width: 48, height: 48}}
+          source={require('../assets/Images/Arrow-128x128.png')}
+        />
+      </View> */}
+    </TouchableOpacity>
   );
 }
 
 export default class BookableRides extends React.Component{
     constructor(props){
         super(props);
+        this.state = {
+          loading: 'false'
+        }
+    }
 
+    componentDidMount(){
+      this.getBookings();
+    }
+
+    getBookings(){
+      this.setState({data: DATA})
     }
 
     render(){
@@ -45,9 +71,14 @@ export default class BookableRides extends React.Component{
               <Text>Book Rides</Text>
               <View style = {styles.list}>
                 <FlatList
-                  data={DATA}
-                  renderItem={({ item }) => <Item title={item.title} />}
+                  data={this.state.data}
+                  renderItem={({ item }) => <Item 
+                                              title={item.title} 
+                                              startAddress={"Start Address: "+item.startAddress} 
+                                              endAddress={"End Address: "+item.endAddress} 
+                                              />}
                   keyExtractor={item => item.id}
+                  style = {styles.flatList}
                 />
               </View>
             </View>
@@ -73,22 +104,39 @@ const styles = StyleSheet.create({
     marginTop: Constants.statusBarHeight
   },
   item: {
-    flex: 1,
+    flex:1,
+    flexDirection: 'row',
     backgroundColor: 'white',
     padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
     width: '100%',
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: '2',
+    borderRadius: 15,
+    marginBottom: 5
   },
   title: {
-    flex: 1,
-    fontSize: 32,
+    fontSize: 24,
+  },
+  subtitle: {
+    fontSize: 12,
+    paddingBottom: '1%'
   },
   list:{
     flex:1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: '5%',
+    width: '95%',
+    paddingTop: '20%',
+  },
+  itemText:{
+    flex:1
+  },
+  itemImage:{
+    flex:0.2,
+    alignContent: 'flex-end', alignItems: 'flex-end'
+  },
+  flatList:{
+    flex:1,
+    justifyContent: 'flex-start',
     width: '100%',
   }
 });

@@ -29,7 +29,7 @@ export default class CreateRide extends React.Component{
               
                 <Image
                 style={{width: 125, height: 125}}
-                source={require('../assets/Images/Plus.png')}
+                source={require('../assets/Images/Plus-512x512.png')}
                 />
 
               </TouchableOpacity>
