@@ -11,6 +11,8 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 //special use
 import DateTimePicker from "react-native-modal-datetime-picker";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { Overlay } from 'react-native-elements';
+import { Ionicons } from '@expo/vector-icons';
 
 export default class CreateRideMenu extends React.Component{
     constructor(props){
@@ -26,13 +28,15 @@ export default class CreateRideMenu extends React.Component{
          newestDate: newestDate,
          mode: 'date',
          show: false,
+         isGoogleAutoCompleteVisible: false,
          isDatePickerVisible: false,
          isTimePickerVisible: false,
          isDarkModeEnabled: true,
-         startLocationlat: '0',
-         startLocationlong: '0',
-         endLocationlat: '0',
-         endLocationlong: '0'
+         startLocation: {},
+         formattedstartLocation: '',         
+         endLocation: {},
+         formattedendLocation: '',
+         inputAddress: ''
         };
     }
     
@@ -43,6 +47,16 @@ export default class CreateRideMenu extends React.Component{
   
     hideDatePicker = () => {
       this.setState({ isDatePickerVisible: false});
+    };
+
+    showGoogleAutoComplete = () => {
+      this.setState({ isGoogleAutoCompleteVisible: true });
+      //console.log(this.state.isGoogleAutoCompleteVisible);
+    };
+
+    hideGoogleAutoComplete = () => {
+      this.setState({ isGoogleAutoCompleteVisible: false });
+      //console.log(this.state.isGoogleAutoCompleteVisible);
     };
   
     handleDatePicked = date => {
@@ -100,9 +114,9 @@ export default class CreateRideMenu extends React.Component{
           clientLimit: '1',
           hostUID: uid,
           startAddress: true,
-          startLatLong: { lat: this.state.startLocationlat, long: this.state.startLocationlong},
+          startLatLong: { lat: this.state.startLocation.lat, long: this.state.startLocation.long},
           endAddress: true,
-          endLatLong: { lat: this.state.endLocationlat, long: this.state.endLocationlong}, 
+          endLatLong: { lat: this.state.endLocation.lat, long: this.state.endLocation.long}, 
           timeFlex: '15',
           timeOutOfWay: '15'
         }).catch(function(error){
@@ -117,129 +131,98 @@ export default class CreateRideMenu extends React.Component{
           [pushID.key] : true
         })
 
-      if(this.state.formattedDate != undefined && this.state.formattedTime != undefined){
-        this.props.navigation.goBack();
-      }
+        if (this.state.formattedDate != undefined && this.state.formattedTime != undefined && this.state.startLocationlat == '' && this.state.endLocationlat == '') {
+          this.props.navigation.goBack();
+        }
       
     }
 
     render(){
-
         return (
             <View style = {styles.container}>
               <Text style={styles.header}>Create A Ride</Text>
 
-              <View style={styles.locationContainer}>
-                <GooglePlacesAutocomplete
-                  placeholder='Enter Starting Location'
-                  minLength={2}
-                  autoFocus={false}
-                  returnKeyType={'default'}
-                  listViewDisplayed='auto'
-                  fetchDetails={true}
-                  renderDescription={row => row.description} // custom description render
-                  onPress={(data, details = null) => {
-                    //console.log(data, details);
-                    
-                    this.setState({"startLocationlat" : details.geometry.location.lat, "startLocationlong" : details.geometry.location.lng});
-                    console.log(this.state.startLocationlat + ' ' + this.state.startLocationlong);
-
-                  }}
-
-                  query={{
-                    key: 'AIzaSyCkSccKLoUZ2pGuwh35miYfrSVGSFTYcoc',
-                    language: 'en', // language of the results
-                    types: 'address'
-                  }}
-                  styles={{
-                    textInputContainer: {
-                      width: '80%'
-                    },
-                    description: {
-                      fontWeight: 'bold'
-                    },
-                    predefinedPlacesDescription: {
-                      color: '#1faadb'
-                    }
-                  }}
-                  currentLocation={false}
-                />
-
-                <GooglePlacesAutocomplete
-                  placeholder='Enter Ending Location'
-                  minLength={2}
-                  autoFocus={false}
-                  returnKeyType={'default'}
-                  listViewDisplayed='auto'
-                  fetchDetails={true}
-                  //renderDescription={row => row.description} // custom description render
-                  onPress={(data, details = null) => { 
-                    //console.log(data, details);
-                    console.log(details.geometry.location.lat + ' ' + details.geometry.location.lng);
-                    this.setState(endLocationlat => details.geometry.location.lat);
-                    this.setState(endLocationlong => details.geometry.location.lng);
-                  }}
-
-                  query={{
-                    key: 'AIzaSyCkSccKLoUZ2pGuwh35miYfrSVGSFTYcoc',
-                    language: 'en', // language of the results
-                    types: 'address'
-                  }}
-                styles={{
-                  textInputContainer: {
-                    width: '80%'
-                  },
-                  description: {
-                    fontWeight: 'bold'
-                  },
-                  predefinedPlacesDescription: {
-                    color: '#1faadb'
-                  }
-                  }}
-                  currentLocation={false}
-                />
-              </View>
-
-              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showDatePicker()}>
-                  <Text style = {styles.buttonLightText}>Select Date</Text>
+              <TouchableOpacity style={styles.buttonLight} onPress={() => {
+                this.showGoogleAutoComplete();
+                this.setState({ inputAddress: "startLocation" })
+              }}>
+                <Text style={styles.buttonLightText}>Select Start Address</Text>
               </TouchableOpacity>
 
-              <DateTimePicker
-                isVisible={this.state.isDatePickerVisible}
-                onConfirm={this.handleDatePicked}
-                onCancel={this.hideDatePicker}
-                isDarkModeEnabled = {true}
-                minimumDate = {this.state.date}
-                maximumDate = {this.state.maximumDate}
-                mode = "date"
-              />
-
-              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showTimePicker()}>
-                  <Text style = {styles.buttonLightText}>Select Time</Text>
+              <TouchableOpacity style={styles.buttonLight} onPress={() => {
+                this.showGoogleAutoComplete();
+                this.setState({ inputAddress: "endLocation" })
+              }}>
+                <Text style={styles.buttonLightText}>Select End Address</Text>
               </TouchableOpacity>
-              
-              <DateTimePicker
-                isVisible={this.state.isTimePickerVisible}
-                onConfirm={this.handleTimePicked}
-                onCancel={this.hideTimePicker}
-                isDarkModeEnabled = {true}
-                mode = "time"
-              />
+
+              <Overlay
+                isVisible={this.state.isGoogleAutoCompleteVisible}
+                onBackdropPress={() => this.setState({ isGoogleAutoCompleteVisible: false })}
+              >
+                <View style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-around' }}>
+                <View style={{ alignSelf: 'center', height: 50, width: '80%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <Ionicons name="md-close" size={32} color="red" onPress={() => this.hideGoogleAutoComplete()} />
+                    <Ionicons name="md-checkmark" size={32} color="green" onPress={() => this.hideGoogleAutoComplete()} />
+                  </View>
+
+                    <GooglePlacesAutocomplete
+                      placeholder='Enter Location'
+                      minLength={2}
+                      autoFocus={false}
+                      returnKeyType={'default'}
+                      listViewDisplayed='auto'
+                      fetchDetails={true}
+                      renderDescription={row => row.description} // custom description render
+                      onPress={(data, details = null) => {
+                        //console.log(data, details);                      
+                        let formatted = 'formatted' + this.state.inputAddress
+                        this.setState({ [this.state.inputAddress]: { lat: details.geometry.location.lat, long: details.geometry.location.lng } });
+                        this.setState({ [formatted]: data.description});
+
+                        /*console.log(this.state.formattedstartLocation);
+                        console.log(this.state.formattedendLocation);*/
+                      }}
+
+                      query={{
+                        key: 'AIzaSyCkSccKLoUZ2pGuwh35miYfrSVGSFTYcoc',
+                        language: 'en', // language of the results
+                        types: 'address'
+                      }}
+                      styles={{
+                        textInputContainer: {
+                          width: '100%'
+                        },
+                        description: {
+                          fontWeight: 'bold'
+                        },
+                        predefinedPlacesDescription: {
+                          color: '#1faadb'
+                        }
+                      }}
+                      currentLocation={false}
+                    />
+                 </View>
+               </Overlay>
 
               <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
                   <Text style = {styles.buttonDarkText}>Confirm Ride</Text>
-              </TouchableOpacity>
-              { this.state.formattedDate == '' && this.state.formattedTime == undefined && 
-                <Text style = {styles.dateTextRed}> Please Select a Date and Time</Text>
+            </TouchableOpacity>
+
+            {this.state.formattedDate == '' && this.state.formattedTime == undefined && this.state.formattedstartLocation == '' && this.state.formattedendLocation == '' &&
+                <Text style={styles.dateTextRed}> Please Select a Date, Time, Starting Address and Ending Address</Text>
               }
               { this.state.formattedTime != undefined  && this.state.formattedDate == undefined &&
-              <Text style = {styles.dateText}> {'Date: Please Select a Date ' + '\n' + 'Time: ' + this.state.formattedTime} </Text>
+              <Text style={styles.dateText}> {'Date: Please Select a Date ' + '\n' + 'Time: ' + this.state.formattedTime + '\n Start Location: '
+                + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
               { this.state.formattedTime == undefined  && this.state.formattedDate != undefined && this.state.formattedDate != '' &&
-              <Text style = {styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: Please Select a Time'} </Text>
+              <Text style={styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: Please Select a Time' + '\n Start Location: '
+                + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
               { this.state.formattedTime != undefined  && this.state.formattedDate != undefined &&
-              <Text style = {styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: ' + this.state.formattedTime} </Text>
+              <Text style={styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: ' + this.state.formattedTime + '\n Start Location: '
+                + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
               <Text style = {styles.spacer}>
               </Text>
