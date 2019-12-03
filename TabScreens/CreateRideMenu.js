@@ -29,10 +29,10 @@ export default class CreateRideMenu extends React.Component{
          isDatePickerVisible: false,
          isTimePickerVisible: false,
          isDarkModeEnabled: true,
-         startLocationlat: '5',
-         startLocationlong: '5',
-         endLocationlat: '5',
-         endLocationlong: '5'
+         startLocationlat: '0',
+         startLocationlong: '0',
+         endLocationlat: '0',
+         endLocationlong: '0'
         };
     }
     
@@ -128,33 +128,8 @@ export default class CreateRideMenu extends React.Component{
         return (
             <View style = {styles.container}>
               <Text style={styles.header}>Create A Ride</Text>
-              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showDatePicker()}>
-                  <Text style = {styles.buttonLightText}>Select Date</Text>
-              </TouchableOpacity>
 
-              <DateTimePicker
-                isVisible={this.state.isDatePickerVisible}
-                onConfirm={this.handleDatePicked}
-                onCancel={this.hideDatePicker}
-                isDarkModeEnabled = {true}
-                minimumDate = {this.state.date}
-                maximumDate = {this.state.maximumDate}
-                mode = "date"
-              />
-
-              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showTimePicker()}>
-                  <Text style = {styles.buttonLightText}>Select Time</Text>
-              </TouchableOpacity>
-              
-              <DateTimePicker
-                isVisible={this.state.isTimePickerVisible}
-                onConfirm={this.handleTimePicked}
-                onCancel={this.hideTimePicker}
-                isDarkModeEnabled = {true}
-                mode = "time"
-              />
-
-              <View style={styles.container}>
+              <View style={styles.locationContainer}>
                 <GooglePlacesAutocomplete
                   placeholder='Enter Starting Location'
                   minLength={2}
@@ -165,9 +140,10 @@ export default class CreateRideMenu extends React.Component{
                   renderDescription={row => row.description} // custom description render
                   onPress={(data, details = null) => {
                     //console.log(data, details);
-                    console.log(details.geometry.location.lat + ' ' + details.geometry.location.lng);
-                    this.setState(startLocationlat => details.geometry.location.lat);
-                    this.setState(startLocationlong => details.geometry.location.lng);
+                    
+                    this.setState({"startLocationlat" : details.geometry.location.lat, "startLocationlong" : details.geometry.location.lng});
+                    console.log(this.state.startLocationlat + ' ' + this.state.startLocationlong);
+
                   }}
 
                   query={{
@@ -194,6 +170,7 @@ export default class CreateRideMenu extends React.Component{
                   minLength={2}
                   autoFocus={false}
                   returnKeyType={'default'}
+                  listViewDisplayed='auto'
                   fetchDetails={true}
                   //renderDescription={row => row.description} // custom description render
                   onPress={(data, details = null) => { 
@@ -223,6 +200,31 @@ export default class CreateRideMenu extends React.Component{
                 />
               </View>
 
+              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showDatePicker()}>
+                  <Text style = {styles.buttonLightText}>Select Date</Text>
+              </TouchableOpacity>
+
+              <DateTimePicker
+                isVisible={this.state.isDatePickerVisible}
+                onConfirm={this.handleDatePicked}
+                onCancel={this.hideDatePicker}
+                isDarkModeEnabled = {true}
+                minimumDate = {this.state.date}
+                maximumDate = {this.state.maximumDate}
+                mode = "date"
+              />
+
+              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showTimePicker()}>
+                  <Text style = {styles.buttonLightText}>Select Time</Text>
+              </TouchableOpacity>
+              
+              <DateTimePicker
+                isVisible={this.state.isTimePickerVisible}
+                onConfirm={this.handleTimePicked}
+                onCancel={this.hideTimePicker}
+                isDarkModeEnabled = {true}
+                mode = "time"
+              />
 
               <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
                   <Text style = {styles.buttonDarkText}>Confirm Ride</Text>
@@ -296,6 +298,8 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   buttonDark:{
+    marginTop: 15,
+    marginBottom: 15,
     flex: 0.075,
     justifyContent: "center",
     alignItems: "center",
@@ -333,5 +337,11 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     textAlign: 'center',
     color: 'red',
+  },
+  locationContainer: {
+    flex: 0.5,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });

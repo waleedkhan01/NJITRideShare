@@ -10,6 +10,7 @@ import { StyleSheet, Text, View } from 'react-native';
 //yarn add react-navigation-tabs
 //npm install react-native-modal-datetime-picker
 //react-native-dark-mode
+//react-native-google-places-autocomplete
 
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
