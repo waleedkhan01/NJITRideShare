@@ -185,9 +185,11 @@ export default class CreateRideMenu extends React.Component{
                 isVisible={this.state.isGoogleAutoCompleteVisible}
                 onBackdropPress={() => this.setState({ isGoogleAutoCompleteVisible: false })}
               >
-                  <View style={{ flex: 1,flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-around' }}>
+                <View style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-around' }}>
+                <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                     <Ionicons name="md-close" size={32} color="red" onPress={() => this.hideGoogleAutoComplete()} />
                     <Ionicons name="md-checkmark" size={32} color="green" onPress={() => this.hideGoogleAutoComplete()} />
+                  </View>
 
                     <GooglePlacesAutocomplete
                       placeholder='Enter Location'
@@ -232,17 +234,20 @@ export default class CreateRideMenu extends React.Component{
                   <Text style = {styles.buttonDarkText}>Confirm Ride</Text>
             </TouchableOpacity>
 
-              {this.state.formattedDate == '' && this.state.formattedTime == undefined && this.state.startLocationlat == '' && this.state.endLocationlat == '' &&
+            {this.state.formattedDate == '' && this.state.formattedTime == undefined && this.state.formattedstartLocation == '' && this.state.formattedendLocation == '' &&
                 <Text style={styles.dateTextRed}> Please Select a Date, Time, Starting Address and Ending Address</Text>
               }
               { this.state.formattedTime != undefined  && this.state.formattedDate == undefined &&
-                <Text style = {styles.dateText}> {'Date: Please Select a Date ' + '\n' + 'Time: ' + this.state.formattedTime} </Text>
+              <Text style={styles.dateText}> {'Date: Please Select a Date ' + '\n' + 'Time: ' + this.state.formattedTime + '\n Start Location: '
+                + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
               { this.state.formattedTime == undefined  && this.state.formattedDate != undefined && this.state.formattedDate != '' &&
-                <Text style = {styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: Please Select a Time'} </Text>
+              <Text style={styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: Please Select a Time' + '\n Start Location: '
+                + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
               { this.state.formattedTime != undefined  && this.state.formattedDate != undefined &&
-                <Text style = {styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: ' + this.state.formattedTime} </Text>
+              <Text style={styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: ' + this.state.formattedTime + '\n Start Location: '
+                + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
               <Text style = {styles.spacer}>
               </Text>
