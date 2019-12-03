@@ -9,8 +9,9 @@ import { StyleSheet, Text, View } from 'react-native';
 //also expo install react-native-gesture-handler (if you npm install you will receive warnings)
 //yarn add react-navigation-tabs
 //npm install react-native-modal-datetime-picker
-//react-native-dark-mode
-//react-native-google-places-autocomplete
+//npm install react-native-dark-mode
+//npm install react-native-google-places-autocomplete
+//npm install react-native-elements
 
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';

@@ -23,7 +23,8 @@ export default class CreateRideMenu extends React.Component{
         this.state = {
          data: firebase.database(),
          date: new Date(),
-         formattedDate: '',
+         formattedDate: undefined,
+         formattedTime: undefined,
          time: new Date(),
          newestDate: newestDate,
          mode: 'date',
@@ -33,9 +34,9 @@ export default class CreateRideMenu extends React.Component{
          isTimePickerVisible: false,
          isDarkModeEnabled: true,
          startLocation: {},
-         formattedstartLocation: '',         
+         formattedstartLocation: undefined,         
          endLocation: {},
-         formattedendLocation: '',
+         formattedendLocation: undefined,
          inputAddress: ''
         };
     }
@@ -71,7 +72,7 @@ export default class CreateRideMenu extends React.Component{
       var y = date.getFullYear();
       var m = date.getMonth();
       var d = date.getDate();
-      var formatted = '' + y +'-'+ m +'-'+ d;
+      var formatted ='' + y +'-'+ m +'-'+ d;
       return formatted;
     }
 
@@ -79,12 +80,36 @@ export default class CreateRideMenu extends React.Component{
     formatTime(date){
       var h = date.getHours();
       var m = date.getMinutes();
-      var format = '';
-      if(h/12 > 0){
-        var format = ''+ (h%12) + ':' + m + 'PM';
+      var format ='';
+      var pm = false; 
+
+      if(h > 12 && h!=12){
+        format =''+ (h%12)+':';
+        pm = true;
+      }
+      else if(h==12){
+        format = '12' + ':';
+        pm = true;
+      }
+      else if(h==0){
+        format = '12' + ':';
+      }
+      else if(h<12){
+        format =''+h+':';
+      }
+
+      if(m>9){
+        format = format + m;
+      }
+      else if(m<=9){
+        format = format + '0'+m;
+      }
+
+      if(pm == true){
+        format = format + ' PM';
       }
       else{
-        var format = ''+h + ':' + m + 'AM';
+        format = format + ' AM';
       }
       return format;
     }
@@ -131,13 +156,14 @@ export default class CreateRideMenu extends React.Component{
           [pushID.key] : true
         })
 
-        if (this.state.formattedDate != undefined && this.state.formattedTime != undefined && this.state.startLocationlat == '' && this.state.endLocationlat == '') {
+        if (this.state.formattedDate !=undefined && this.state.formattedTime !=undefined && this.state.formattedstartLocation !=undefined && this.state.formattedendLocation !=undefined) {
           this.props.navigation.goBack();
         }
       
     }
 
     render(){
+      console.log()
         return (
             <View style = {styles.container}>
               <Text style={styles.header}>Create A Ride</Text>
@@ -177,7 +203,8 @@ export default class CreateRideMenu extends React.Component{
                       onPress={(data, details = null) => {
                         //console.log(data, details);                      
                         let formatted = 'formatted' + this.state.inputAddress
-                        this.setState({ [this.state.inputAddress]: { lat: details.geometry.location.lat, long: details.geometry.location.lng } });
+                        this.setState({ [this.state.inputAddress]: { lat: details.geometry.location.lat, long: details.geometry.location.lng } }
+                          );
                         this.setState({ [formatted]: data.description});
 
                         /*console.log(this.state.formattedstartLocation);
@@ -204,24 +231,66 @@ export default class CreateRideMenu extends React.Component{
                     />
                  </View>
                </Overlay>
+             
+              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showDatePicker()}>
+                  <Text style = {styles.buttonLightText}>Select Date</Text>
+              </TouchableOpacity>
 
-              <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
+              <DateTimePicker
+                isVisible={this.state.isDatePickerVisible}
+                onConfirm={this.handleDatePicked}
+                onCancel={this.hideDatePicker}
+                isDarkModeEnabled = {true}
+                minimumDate = {this.state.date}
+                maximumDate = {this.state.maximumDate}
+                date = {this.state.date}
+                mode = "date"
+              />
+
+              <TouchableOpacity style={styles.buttonLight} onPress = {() => this.showTimePicker()}>
+                  <Text style = {styles.buttonLightText}>Select Time</Text>
+              </TouchableOpacity>
+              
+              <DateTimePicker
+                isVisible={this.state.isTimePickerVisible}
+                onConfirm={this.handleTimePicked}
+                onCancel={this.hideTimePicker}
+                isDarkModeEnabled = {true}
+                date = {this.state.time}
+                mode = "time"
+              />
+              
+
+            <TouchableOpacity style={styles.buttonDark} onPress = {() => this.createRide()}>
                   <Text style = {styles.buttonDarkText}>Confirm Ride</Text>
             </TouchableOpacity>
 
-            {this.state.formattedDate == '' && this.state.formattedTime == undefined && this.state.formattedstartLocation == '' && this.state.formattedendLocation == '' &&
-                <Text style={styles.dateTextRed}> Please Select a Date, Time, Starting Address and Ending Address</Text>
+              { this.state.formattedTime ==undefined && this.state.formattedDate ==undefined && (this.state.formattedstartLocation ==undefined || this.state.formattedendLocation ==undefined) &&
+                <Text style={styles.dateTextRed}> Please Select a Date, Time, and Start/End Addresses</Text>
               }
-              { this.state.formattedTime != undefined  && this.state.formattedDate == undefined &&
-              <Text style={styles.dateText}> {'Date: Please Select a Date ' + '\n' + 'Time: ' + this.state.formattedTime + '\n Start Location: '
+              { this.state.formattedTime !=undefined  && this.state.formattedDate ==undefined && (this.state.formattedstartLocation ==undefined || this.state.formattedendLocation ==undefined) &&
+              <Text style={styles.dateTextRed}> {'Please Select a Date and Start/End Addresses' + '\n' + 'Time: ' + this.state.formattedTime} </Text>
+              } 
+              { this.state.formattedTime ==undefined  && this.state.formattedDate !=undefined && (this.state.formattedstartLocation ==undefined || this.state.formattedendLocation ==undefined) &&
+              <Text style={styles.dateTextRed}> {'Please Select a Time and Start/End Addresses' + '\n' + 'Date: ' + this.state.formattedDate  } </Text>
+              } 
+              { this.state.formattedTime !=undefined  && this.state.formattedDate ==undefined && (this.state.formattedstartLocation ==undefined || this.state.formattedendLocation ==undefined) &&
+              <Text style={styles.dateTextRed}> {'Please Select a Start/End Addresses' + '\n' + 'Time: ' + this.state.formattedTime+ '\n' + 'Date: ' + this.state.formattedDate} </Text>
+              } 
+              { this.state.formattedTime ==undefined  && this.state.formattedDate ==undefined && this.state.formattedstartLocation !=undefined && this.state.formattedendLocation !=undefined &&
+              <Text style={styles.dateTextRed}> {'Please Select a Date and Time' + '\nStart Location: '
                 + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
-              { this.state.formattedTime == undefined  && this.state.formattedDate != undefined && this.state.formattedDate != '' &&
-              <Text style={styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: Please Select a Time' + '\n Start Location: '
+              { this.state.formattedTime !=undefined  && this.state.formattedDate ==undefined && this.state.formattedstartLocation !=undefined && this.state.formattedendLocation !=undefined &&
+              <Text style={styles.dateTextRed}> {'Please Select a Date' + '\nTime: ' + this.state.formattedTime + '\nStart Location: '
                 + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
-              { this.state.formattedTime != undefined  && this.state.formattedDate != undefined &&
-              <Text style={styles.dateText}> {'Date: ' + this.state.formattedDate + '\n' + 'Time: ' + this.state.formattedTime + '\n Start Location: '
+              { this.state.formattedTime ==undefined  && this.state.formattedDate !=undefined && this.state.formattedstartLocation !=undefined && this.state.formattedendLocation !=undefined &&
+              <Text style={styles.dateTextRed}> {'Please Select a Time' + '\nDate: ' + this.state.formattedDate+ '\nStart Location: '
+                + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
+              } 
+               { this.state.formattedTime !=undefined  && this.state.formattedDate !=undefined && this.state.formattedstartLocation !=undefined && this.state.formattedendLocation !=undefined &&
+              <Text style={styles.dateText}> {'Time: '+this.state.formattedTime + '\nDate: ' + this.state.formattedDate+ '\nStart Location: '
                 + this.state.formattedstartLocation + '\nEnd Location: ' + this.state.formattedendLocation} </Text>
               } 
               <Text style = {styles.spacer}>
@@ -281,8 +350,6 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   buttonDark:{
-    marginTop: 15,
-    marginBottom: 15,
     flex: 0.075,
     justifyContent: "center",
     alignItems: "center",
@@ -307,14 +374,14 @@ const styles = StyleSheet.create({
     width: '20%',
   },
   dateText: {
-    flex: 0.1,
+    flex: 0.15,
     width: '80%',
     justifyContent: 'center',
     alignContent: 'center',
     textAlign: 'center'
   },
   dateTextRed: {
-    flex: 0.1,
+    flex: 0.15,
     width: '80%',
     justifyContent: 'center',
     alignContent: 'center',
