@@ -13,6 +13,7 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Overlay } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
+import * as matchMaker from '../Screens/matchHelper';
 
 export default class CreateRideMenu extends React.Component{
     constructor(props){
@@ -72,7 +73,16 @@ export default class CreateRideMenu extends React.Component{
       var y = date.getFullYear();
       var m = date.getMonth();
       var d = date.getDate();
-      var formatted ='' + y +'-'+ m +'-'+ d;
+      var formatted ='' + y +'-'+ m +'-';
+
+      if(d<9){
+        formatted = formatted + '0'+d;
+      }
+      else{
+        formatted = formatted + d;
+      }
+
+      console.log(new Date(formatted))
       return formatted;
     }
 
@@ -111,6 +121,9 @@ export default class CreateRideMenu extends React.Component{
       else{
         format = format + ' AM';
       }
+      var time = date;
+      // console.log(time);
+      // time.setTime(date.getTime());
       return format;
     }
 
@@ -134,32 +147,35 @@ export default class CreateRideMenu extends React.Component{
       
 
       var uid = firebase.auth().currentUser.uid;
-      //if the generated RID is not already used, create a new Ride in the database
+      //Create a new Ride in the database
       var pushID = await this.state.data.ref('rides/').push({
           clientLimit: '1',
           hostUID: uid,
-          startAddress: true,
+          startAddress: this.state.formattedstartLocation,
           startLatLong: { lat: this.state.startLocation.lat, long: this.state.startLocation.long},
-          endAddress: true,
+          endAddress: this.state.formattedendLocation,
           endLatLong: { lat: this.state.endLocation.lat, long: this.state.endLocation.long}, 
           timeFlex: '15',
-          timeOutOfWay: '15'
+          timeOutOfWay: '15',
+          dateTime: ''
         }).catch(function(error){
           console.log(error)
           console.log("ERROR: Unable to create Ride");
           return;
         });
 
-        console.log("PUSH: "+pushID)
+        console.log("PUSH: "+pushID.key);
         //Add the ride under the user as well
         await this.state.data.ref('users/' + uid + '/ridesCreated').update({
           [pushID.key] : true
         })
 
         if (this.state.formattedDate !=undefined && this.state.formattedTime !=undefined && this.state.formattedstartLocation !=undefined && this.state.formattedendLocation !=undefined) {
+          matchMaker.start_match(pushID.key);
           this.props.navigation.goBack();
         }
-      
+        
+        
     }
 
     render(){
@@ -274,7 +290,7 @@ export default class CreateRideMenu extends React.Component{
               { this.state.formattedTime ==undefined  && this.state.formattedDate !=undefined && (this.state.formattedstartLocation ==undefined || this.state.formattedendLocation ==undefined) &&
               <Text style={styles.dateTextRed}> {'Please Select a Time and Start/End Addresses' + '\n' + 'Date: ' + this.state.formattedDate  } </Text>
               } 
-              { this.state.formattedTime !=undefined  && this.state.formattedDate ==undefined && (this.state.formattedstartLocation ==undefined || this.state.formattedendLocation ==undefined) &&
+              { this.state.formattedTime !=undefined  && this.state.formattedDate !=undefined && (this.state.formattedstartLocation ==undefined || this.state.formattedendLocation ==undefined) &&
               <Text style={styles.dateTextRed}> {'Please Select a Start/End Addresses' + '\n' + 'Time: ' + this.state.formattedTime+ '\n' + 'Date: ' + this.state.formattedDate} </Text>
               } 
               { this.state.formattedTime ==undefined  && this.state.formattedDate ==undefined && this.state.formattedstartLocation !=undefined && this.state.formattedendLocation !=undefined &&

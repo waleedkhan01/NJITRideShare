@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, FlatList, SafeAreaView, Image} from 'react-native';
+import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, FlatList, SafeAreaView, Image, Alert} from 'react-native';
 import Constants from 'expo-constants';
 import { blue, black, white } from 'ansi-colors';
 
@@ -11,74 +11,116 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 const DATA = [
   {
-    id: '1',
-    title: 'December 3rd, 5:00 PM',
+    RID: '1',
+    dateTime: 'December 3rd, 5:00 PM',
     startAddress: 'home',
     endAddress: 'NJIT'
   },
   {
-    id: '2',
-    title: 'December 3rd, 5:30 PM',
+    RID: '2',
+    dateTime: 'December 3rd, 5:30 PM',
     startAddress: 'NJIT',
     endAddress: 'home'
   },
   {
-    id: '3',
-    title: 'December 5th, 9:30 AM',
+    RID: '3',
+    dateTime: 'December 5th, 9:30 AM',
+    startAddress: 'home',
+    endAddress: 'NJIT'
+  },
+];
+const DATA2 = [
+  {
+    RID: '2',
+    dateTime: 'December 3rd, 5:30 PM',
+    startAddress: 'NJIT',
+    endAddress: 'home'
+  },
+  {
+    RID: '3',
+    dateTime: 'December 5th, 9:30 AM',
     startAddress: 'home',
     endAddress: 'NJIT'
   },
 ];
 
-function Item({ title, startAddress, endAddress}) {
-  return (
-    <TouchableOpacity style={styles.item}>
-      <View style ={styles.itemText}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{startAddress}</Text>
-        <Text style={styles.subtitle}>{endAddress}</Text>
-      </View>
-      {/* <View style={styles.itemImage}>
-        <Image
-          style={{width: 48, height: 48}}
-          source={require('../assets/Images/Arrow-128x128.png')}
-        />
-      </View> */}
-    </TouchableOpacity>
-  );
-}
-
 export default class BookableRides extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-          loading: 'false'
+          loading: 'false',
+          data: firebase.database(),
+          dict: []
         }
     }
+    
 
-    componentDidMount(){
+    async componentDidMount(){
       this.getBookings();
+      await this.getRides();
     }
 
     getBookings(){
       this.setState({data: DATA})
     }
-
+    createAlert(dateTime, RID){
+      Alert.alert(
+        'Book Ride for ' + dateTime +'?',
+        '',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => {
+            this.setState({data: DATA2})
+          }},
+        ],
+        {cancelable: true},
+      )
+    }
+    async getRides(){
+      var loadedRides = false;
+      var currentRides = await this.state.data.ref('rides').once('value', function (snapshot) {
+        loadedRides = true;
+      });
+      if(loadedRides == true){
+        currentRides.forEach((data) => {
+          this.state.dict.push({
+            RID:   data.key,
+            value: data
+        });
+        })
+      }
+      console.log(this.state.dict[0].value)
+      console.log(DATA)
+    }
     render(){
         return (
           <View style = {styles.container}>
             <View style = {styles.generic}>
-              <Text>Book Rides</Text>
+              <Text style={styles.header}>Book Rides</Text>
               <View style = {styles.list}>
                 <FlatList
                   data={this.state.data}
-                  renderItem={({ item }) => <Item 
-                                              title={item.title} 
-                                              startAddress={"Start Address: "+item.startAddress} 
-                                              endAddress={"End Address: "+item.endAddress} 
-                                              />}
+                  renderItem={({ item }) => 
+
+                      <TouchableOpacity style={styles.item} onPress = {() => this.createAlert(item.dateTime, item.RID)}>
+                        <View style ={styles.itemText}>
+                          <Text style={styles.title}>{item.dateTime}</Text>
+                          <Text style={styles.subtitle}>{item.startAddress}</Text>
+                          <Text style={styles.subtitle}>{item.endAddress}</Text>
+                        </View>
+                        {/* <View style={styles.itemImage}>
+                          <Image
+                            style={{width: 48, height: 48}}
+                            source={require('../assets/Images/Arrow-128x128.png')}
+                          />
+                        </View> */}
+                    </TouchableOpacity>}
+
                   keyExtractor={item => item.id}
-                  style = {styles.flatList}
                 />
               </View>
             </View>
@@ -103,6 +145,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     marginTop: Constants.statusBarHeight
   },
+  header:{
+    flex:0.1,
+    paddingTop: "5%",
+    color: 'black',
+    fontWeight: "800",
+    fontSize: 33,
+    textAlign: "center",
+  },
   item: {
     flex:1,
     flexDirection: 'row',
@@ -111,7 +161,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'white',
     borderColor: 'black',
-    borderWidth: '2',
+    borderWidth: 2,
     borderRadius: 15,
     marginBottom: 5
   },
@@ -125,7 +175,7 @@ const styles = StyleSheet.create({
   list:{
     flex:1,
     width: '95%',
-    paddingTop: '20%',
+    paddingTop: '10%',
   },
   itemText:{
     flex:1
