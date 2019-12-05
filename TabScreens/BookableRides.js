@@ -32,13 +32,23 @@ export default class BookableRides extends React.Component{
 
     }
 
+    componentDidMount(){
+      this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
+        this.setState({
+          user
+        });
+      });
+    }
+
     async bookRide(RID){
-      var auth = this.state.auth;
-      if(auth.currentUser!=null && auth.currentUser!=undefined){
-        auth = auth.currentUser.uid;
-        await this.state.data.ref('rides/'+RID+'/clients/'+auth).set(true, () => {
+      var uid = this.state.user.uid;
+      if(uid){
+        console.log('users/'+uid+'/ridesJoined/'+RID)
+        await this.state.data.ref('users/'+uid+'/ridesJoined/'+RID).set(true);
+        await this.state.data.ref('rides/'+RID+'/clients/'+uid).set(true, () => {
           this.getRides();
         });
+        
       }
     }
 
