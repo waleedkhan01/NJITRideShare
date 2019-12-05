@@ -10,6 +10,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 import MatchScreen from './MatchScreen'
 import MatchDetail from './MatchDetail'
+import ProfileScreen from '../Screens/profileScreen';
 
 
 const styles = StyleSheet.create({
@@ -31,7 +32,8 @@ const styles = StyleSheet.create({
 const MatchStack = createStackNavigator({
   
   MatchScreen: MatchScreen,
-  MatchDetail: MatchDetail
+  MatchDetail: MatchDetail,
+  Profile: ProfileScreen
   },
   {
     initialRouteName: 'MatchScreen',

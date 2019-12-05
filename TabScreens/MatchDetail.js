@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, Alert} from 'react-native';
 
 import {  ActivityIndicator, FlatList } from 'react-native';
 import { blue, black, white } from 'ansi-colors';
@@ -28,9 +28,7 @@ export default class MatchDetail extends React.Component{
     item: {}
   }
   
-    constructor(props){
-
-      
+  constructor(props){
       super(props);
 
       var item = this.props.navigation.state.params.detail;
@@ -45,99 +43,133 @@ export default class MatchDetail extends React.Component{
           _console.warn(message); 
         }
       };
-      }
+      };
   
-    /****************************************** */ 
+  /****************************************** */ 
+  viewProfile(){
+    console.log("view profile pressed")
 
-callUser()
-{
-  console.log("call user")
-  Linking.openURL(`tel:${item.child_user_phone}`);
+    this.props.navigation.navigate('Profile');
 
-}
-
- textUser()
-{
-  console.log("text user")
-
-  const isAvailable =  SMS.isAvailableAsync();
-      if (isAvailable) {
-
-         SMS.sendSMSAsync(
-          item.child_user_phone, "Hello! I'd like to share a ride with you from "+item.start_location +" around " +  item.time
-        );
-        
-        // do your SMS stuff here
-    } else {
-      alert("Sorry, text messages are not available on this device")
   }
 
-}
-
-emailUser()
-{
-  console.log("email  user")
-  MailComposer.composeAsync({
-    recipients: [item.child_user_email],
-    subject: "I'd like to share a ride!",
-    body: "Hello! I'd like to share a ride with you from "+item.start_location +" around " +  item.time
-    })
-}
+  bookMyRide(){
 
 
-render()
-{
-
-  item = _.cloneDeep(this.state.item)
-  return(<View>
+  }
+  bookTheirRide(){
+  }
     
-    <StatusBarBackground style={{backgroundColor:'midnightblue'}}/>           
-    <MyAppHeaderText></MyAppHeaderText>
-    <MyAppHeaderText></MyAppHeaderText>
-    <MyAppHeaderText></MyAppHeaderText>
-    <MyAppHeaderText>You wanted to go from </MyAppHeaderText>
-    <MyAppHeaderText>{item.start_location} to {item.end_location}</MyAppHeaderText>
-    <MyAppHeaderText> on {item.time}</MyAppHeaderText>         
-    <MyAppHeaderText></MyAppHeaderText>
-    <MyAppHeaderText>{item.child_user_name} is going from </MyAppHeaderText>
-    <MyAppHeaderText>{item.child_ride_start_location} to {item.child_ride_end_location}</MyAppHeaderText>
-    <MyAppHeaderText>on {child_ride_time}</MyAppHeaderText>
-    <MyAppHeaderText></MyAppHeaderText>
-    <MyAppHeaderText>You can reach them at</MyAppHeaderText>              
-    <MyAppHeaderText>{item.child_user_email} </MyAppHeaderText>              
-    <MyAppHeaderText>{item.child_user_phone}</MyAppHeaderText>              
-    
-    <TouchableOpacity style={styles.buttonLight} onPress = {() => this.callUser()}>
-        <Text style = {styles.buttonLightText}>Call</Text>
-    </TouchableOpacity>
 
-    <TouchableOpacity style={styles.buttonLight} onPress = {() => this.textUser()}>
-        <Text style = {styles.buttonLightText}>Text</Text>
-    </TouchableOpacity>
+    /****************************************** */ 
+    bookIt(){
+    Alert.alert(
+      'Book Ride',
+      'Keep which ride?  This will cancel the other.',
+      [
+        {text: 'My Ride', onPress: () => console.log('Booking My Ride')},
+        {text: 'Their Ride', onPress: () => console.log('Booking Their ride'), style: 'cancel'}
+      ],
+      { cancelable: true }
+    )
+  }
 
-    <TouchableOpacity style={styles.buttonLight} onPress = {() => this.emailUser()}>
-        <Text style = {styles.buttonLightText}>Email</Text>
-    </TouchableOpacity>
+  callUser()
+  {
+    console.log("call user")
+    Linking.openURL(`tel:${item.child_user_phone}`);
+
+  }
+
+  textUser()
+  {
+    console.log("text user")
+    const isAvailable =  SMS.isAvailableAsync();
+    if (isAvailable) {
+      SMS.sendSMSAsync(
+        item.child_user_phone, "Hello! I'd like to share a ride with you from "+item.start_location +" around " +  item.time
+      );
+    } else {
+      alert("Sorry, text messages are not available on this device")
+    }
+
+  }
+
+  emailUser()
+  {
+    console.log("email  user")
+    MailComposer.composeAsync({
+      recipients: [item.child_user_email],
+      subject: "I'd like to share a ride!",
+      body: "Hello! I'd like to share a ride with you from "+item.start_location +" around " +  item.time
+      })
+  }
+
+
+  render()
+  {
+
+    item = _.cloneDeep(this.state.item)
+    return( 
+
+      <View style = {styles.container}>
             
-    <MyAppHeaderText></MyAppHeaderText>
 
-    <TouchableOpacity style={styles.buttonLight} onPress = { () => this.props.navigation.goBack() }>
-                  <Text style = {styles.buttonLightText}>Back</Text>
-    </TouchableOpacity>
+        <MyAppHeaderText></MyAppHeaderText>
+        <MyAppHeaderText>Your ride: </MyAppHeaderText> 
+        <MyAppHeaderText>{item.start_location} to</MyAppHeaderText>
+        <MyAppHeaderText>{item.end_location}</MyAppHeaderText>
+        <MyAppHeaderText> on {item.time}</MyAppHeaderText>         
+        <MyAppHeaderText></MyAppHeaderText>
+        <MyAppHeaderText>{item.child_user_name} is going from </MyAppHeaderText>
+        <MyAppHeaderText>{item.child_ride_start_location} to </MyAppHeaderText>
+        <MyAppHeaderText>{item.child_ride_end_location}</MyAppHeaderText>
+        <MyAppHeaderText>on {child_ride_time}</MyAppHeaderText>
+        <MyAppHeaderText></MyAppHeaderText>
+        <MyAppHeaderText>You can reach them at:</MyAppHeaderText>              
+        <MyAppHeaderText>{item.child_user_email} </MyAppHeaderText>              
+        <MyAppHeaderText>{item.child_user_phone}</MyAppHeaderText>              
+        
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity style={styles.buttonLight} onPress = {() => this.callUser()}>
+              <Text style = {styles.buttonLightText}>Call</Text>
+          </TouchableOpacity>
 
-    </View>)
+          <TouchableOpacity style={styles.buttonLight} onPress = {() => this.textUser()}>
+              <Text style = {styles.buttonLightText}>Text</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonLight} onPress = {() => this.emailUser()}>
+              <Text style = {styles.buttonLightText}>Email</Text>
+          </TouchableOpacity>
 
+        </View>
 
+        <View style={{ flexDirection: 'row' }}>  
+          <TouchableOpacity style={styles.buttonLight} onPress = { () => this.viewProfile() }>
+            <Text style = {styles.buttonLightText}>Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonLight} onPress = { () => this.bookIt() }>
+            <Text style = {styles.buttonLightText}>Book</Text>
+          </TouchableOpacity>
+        </View>
+        <MyAppHeaderText></MyAppHeaderText>
+
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity style={styles.buttonLight} onPress = { () => this.props.navigation.goBack() }>
+            <Text style = {styles.buttonLightText}>Back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
+
+  } //Render
 }
-
-}  
-
   
   class MyAppHeaderText extends React.Component {
     render() {
       return (
         <Text>
-          <Text style={{fontSize: 20}}>{this.props.children}</Text>
+          <Text style={{fontSize: 18}}>{this.props.children}</Text>
         </Text>
       );
     }
@@ -166,18 +198,18 @@ render()
       textAlign: "center",
     },
     select:{
-      fontSize: 35
+      fontSize: 35 
     },
     styles:{
       flex:1,
     },
     buttonLight:{
-      //flex: 0.1,
+      flex: 1,
       justifyContent: "center",
       alignItems: "center",
       backgroundColor: "white",
       borderColor: 'black',
-      borderWidth: 3,
+      borderWidth: 3, 
       borderRadius: 15,
       width: "40%",
       height: 40,

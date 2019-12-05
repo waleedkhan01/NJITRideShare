@@ -14,18 +14,7 @@ import { YellowBox } from 'react-native';
 import{ ListItem} from 'react-native-elements';
 import _ from 'lodash';
 import StatusBarBackground from '../Screens/statusbar'
-
-
-/*
-
-
-referential integrity checklist
-
-
-
-
-*/
-
+import Constants from 'expo-constants';
 
 
 //**************************************************** */
@@ -67,7 +56,7 @@ function test(){
    
      return
  
- }
+}
 //*********************************************************************************************************************************** */
 export default class MatchScreen extends React.Component{
   
@@ -175,18 +164,25 @@ export default class MatchScreen extends React.Component{
     touchlist(item)
     {
       console.log("touched") 
-      this.props.navigation.navigate('MatchDetail', {detail:item});
+      this.props.navigation.navigate('MatchDetail', {detail:item}); 
     }
     /****************************************** */
     renderItem({item})  
     {      
-      console.log("renderitem:"+ item[1])
-      
+      console.log("renderitem:"+ item[1].child_user_name)
+      Line1 = item[1].child_user_name +" is leaving from " + item[1].child_ride_start_location +" on "+ item[1].child_ride_time
+      Line2 = "Close to your ride "+ item[1].start_location+" at "+ item[1].time
+          
       return(
-      <View>
-      <TouchableOpacity onPress = {() => this.touchlist(item) }>
-      <ListItem title = {item[1].child_user_name +" is leaving from " + item[1].child_ride_start_location +" on "+ item[1].child_ride_time}
-       subtitle={"You looked for "+ item[1].start_location+" at "+ item[1].time} /></TouchableOpacity></View>); 
+        <View style = {styles.list}>
+          <TouchableOpacity  style={styles.item} onPress = {() => this.touchlist(item) }>
+            <View style ={styles.itemText}>
+              <Text style={styles.midtitle}>{Line1}</Text>
+              <Text style={styles.subtitle}>{Line2} </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      ); 
     } 
     /****************************************** */
     render(){
@@ -200,53 +196,97 @@ export default class MatchScreen extends React.Component{
           </View>
         )
       }
-      else
+      else {
           console.log("rendering: loading false") 
           
           console.log(_.cloneDeep(this.state.listitems))
           return (
-          <View style = {{alignItems: 'stretch'}}>
-            <StatusBarBackground style={{backgroundColor:'midnightblue'}}/>
-            <MyAppHeaderText> </MyAppHeaderText>
-            <MyAppHeaderText>Your Matched Rides</MyAppHeaderText>          
-            <FlatList
-              data = {_.cloneDeep(this.state.listitems)}
-              renderItem={this.renderItem.bind(this)} // the bind gives that function the conext it need to get 'this' 
-              keyExtractor={item => item[0]}
-            />
-
-          </View>
-    
-      );
+            <View style = {styles.container}>
+              <View style = {styles.generic}>
+                <View style = {styles.list}>
+                  <Text style={styles.header}>Matched Rides</Text>
+                
+                  <FlatList syle ={"paddingBottom: 5%"}
+                    data = {_.cloneDeep(this.state.listitems)}
+                    renderItem={this.renderItem.bind(this)} // the bind gives that function the conext it need to get 'this' 
+                    keyExtractor={item => item[0]}
+                  />
+                              </View>
+                </View>
+              </View>        
             
-
-
-        
+    
+          );
+      }            
     }
-}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: '#a8a8a8',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  generic:{
-    flex:1,
-    width: '100%',
-    alignItems: "center",
-    justifyContent: "space-around",
   }
-});
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      width: '100%',
+      flexDirection: 'column',
+      backgroundColor: '#a8a8a8',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    generic:{
+      flex:1,
+      width: '100%',
+      alignItems: "center",
+      justifyContent: "space-around",
+      marginTop: Constants.statusBarHeight,
+      borderWidth :1
+    },
+    header:{
+      flex:.15,
+      paddingTop: "5%",
+      color: 'black',
+      fontWeight: "800",
+      fontSize: 33,
+      textAlign: "center",
+    },
+    item: {
+      flex:1,
+      flexDirection: 'row',
+      backgroundColor: 'white',
+      padding: 10,
+      width: '100%',
+      backgroundColor: 'white',
+      borderColor: 'black',
+      borderWidth: 2,
+      borderRadius: 15,
+      marginBottom: 0
+    },
+    title: {
+      fontSize: 24,
+    },
+    subtitle: {
+      fontSize: 14,
+      paddingBottom: '1%'
+    },
+    midtitle: {
+      fontSize: 16,
+      paddingBottom: '1%'
+    },
+    
+    list:{
+      flex:1,
+      width: '95%',
+      paddingTop: '2%',
+    },
+    itemText:{
+      flex:1
+    },
+    itemImage:{
+      flex:0.2,
+      alignContent: 'flex-end', alignItems: 'flex-end'
+    },
+    flatList:{
+      flex:1,
+      justifyContent: 'flex-start',
+      width: '100%'
+    }
+  })
 
-class MyAppHeaderText extends React.Component {
-  render() {
-    return (
-      <Text>
-        <Text style={{fontSize: 20}}>{this.props.children}</Text>
-      </Text>
-    );
-  }
-}
+
