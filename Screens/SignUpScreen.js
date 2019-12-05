@@ -1,3 +1,4 @@
+//Waleed Khan
 import * as React from 'react';
 import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity} from 'react-native';
 import { blue, black, white } from 'ansi-colors';

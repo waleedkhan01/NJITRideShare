@@ -1,3 +1,4 @@
+//Waleed Khan
 import * as React from 'react';
 import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity} from 'react-native';
 import { blue, black, white } from 'ansi-colors';
@@ -25,6 +26,7 @@ export default class CreateRideMenu extends React.Component{
          data: firebase.database(),
          date: new Date(),
          formattedDate: undefined,
+         timeData: undefined,
          formattedTime: undefined,
          time: new Date(),
          newestDate: newestDate,
@@ -70,19 +72,10 @@ export default class CreateRideMenu extends React.Component{
 
     //Formats date into mm-dd-yyyy
     formatDate(date){
-      var y = date.getFullYear();
-      var m = date.getMonth();
-      var d = date.getDate();
-      var formatted ='' + y +'-'+ m +'-';
 
-      if(d<9){
-        formatted = formatted + '0'+d;
-      }
-      else{
-        formatted = formatted + d;
-      }
+      var formatted = date.toLocaleDateString();
 
-      console.log(new Date(formatted))
+      var date = new Date(formatted);
       return formatted;
     }
 
@@ -121,9 +114,9 @@ export default class CreateRideMenu extends React.Component{
       else{
         format = format + ' AM';
       }
-      var time = date;
-      // console.log(time);
-      // time.setTime(date.getTime());
+      
+      var time = date.getTime();
+      this.setState({timeData : time})
       return format;
     }
 
@@ -143,37 +136,63 @@ export default class CreateRideMenu extends React.Component{
       this.hideTimePicker();
     };
 
-    async createRide(){
-      
+    combineDateTime(fd, td){
 
+      var date = new Date(fd)
+      var time = new Date(td)
+      
+      time.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+      time.setUTCSeconds(0);
+
+      var value = time.getTime();
+      
+      return value;
+    }
+
+    async createRide(){
+
+      var fd = this.state.formattedDate; 
+      var td = this.state.timeData;
+      var fs = this.state.formattedstartLocation;
+      var fe = this.state.formattedendLocation;
+      var start = this.state.startLocation;
+      var end = this.state.endLocation;
       var uid = firebase.auth().currentUser.uid;
+
+      if(fd == undefined || td == undefined ||  fs == undefined  || fe == undefined || start == undefined || end == undefined || uid == undefined){
+        return;
+      }
+
+      var dateTime = this.combineDateTime(fd, td);
+      
+      // console.log(new Date(dateTime).toString());
+
       //Create a new Ride in the database
       var pushID = await this.state.data.ref('rides/').push({
           clientLimit: '1',
           hostUID: uid,
-          startAddress: this.state.formattedstartLocation,
-          startLatLong: { lat: this.state.startLocation.lat, long: this.state.startLocation.long},
-          endAddress: this.state.formattedendLocation,
-          endLatLong: { lat: this.state.endLocation.lat, long: this.state.endLocation.long}, 
+          startAddress: fs,
+          startLatLong: { lat: start.lat, long: start.long},
+          endAddress: fe,
+          endLatLong: { lat: end.lat, long: end.long}, 
           timeFlex: '15',
           timeOutOfWay: '15',
-          dateTime: ''
+          dateTime: dateTime
         }).catch(function(error){
           console.log(error)
           console.log("ERROR: Unable to create Ride");
           return;
         });
 
-        console.log("PUSH: "+pushID.key);
+        console.log("PUSH KEY: "+pushID.key);
         //Add the ride under the user as well
         await this.state.data.ref('users/' + uid + '/ridesCreated').update({
           [pushID.key] : true
         })
 
-        if (this.state.formattedDate !=undefined && this.state.formattedTime !=undefined && this.state.formattedstartLocation !=undefined && this.state.formattedendLocation !=undefined) {
-          matchMaker.start_match(pushID.key);
-          this.props.navigation.goBack();
-        }
+        matchMaker.start_match(pushID.key);
+        this.props.navigation.goBack();
+        
         
         
     }

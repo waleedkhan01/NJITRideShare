@@ -1,5 +1,6 @@
+//Waleed Khan
 import React, {Component} from 'react';
-import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, FlatList, SafeAreaView, Image, Alert} from 'react-native';
+import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, FlatList, SafeAreaView, Image, Alert, ActivityIndicator} from 'react-native';
 import Constants from 'expo-constants';
 import { blue, black, white } from 'ansi-colors';
 
@@ -9,63 +10,41 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
-const DATA = [
-  {
-    RID: '1',
-    dateTime: 'December 3rd, 5:00 PM',
-    startAddress: 'home',
-    endAddress: 'NJIT'
-  },
-  {
-    RID: '2',
-    dateTime: 'December 3rd, 5:30 PM',
-    startAddress: 'NJIT',
-    endAddress: 'home'
-  },
-  {
-    RID: '3',
-    dateTime: 'December 5th, 9:30 AM',
-    startAddress: 'home',
-    endAddress: 'NJIT'
-  },
-];
-const DATA2 = [
-  {
-    RID: '2',
-    dateTime: 'December 3rd, 5:30 PM',
-    startAddress: 'NJIT',
-    endAddress: 'home'
-  },
-  {
-    RID: '3',
-    dateTime: 'December 5th, 9:30 AM',
-    startAddress: 'home',
-    endAddress: 'NJIT'
-  },
-];
+
 
 export default class BookableRides extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-          loading: 'false',
+          loading: true,
           data: firebase.database(),
-          dict: []
+          dict: [],
+          auth: firebase.auth()
         }
     }
     
 
-    async componentDidMount(){
-      this.getBookings();
-      await this.getRides();
+    async componentWillMount(){
+
+      await this.getRides().then(() => {
+        // this.setState({loading: false});
+      });
+
     }
 
-    getBookings(){
-      this.setState({data: DATA})
+    async bookRide(RID){
+      var auth = this.state.auth;
+      if(auth.currentUser!=null && auth.currentUser!=undefined){
+        auth = auth.currentUser.uid;
+        await this.state.data.ref('rides/'+RID+'/clients/'+auth).set(true, () => {
+          this.getRides();
+        });
+      }
     }
-    createAlert(dateTime, RID){
+
+    async createAlert(dateTime, RID){
       Alert.alert(
-        'Book Ride for ' + dateTime +'?',
+        'Book Ride for ' + new Date(dateTime).toLocaleDateString() + " at " + new Date(dateTime).toLocaleString({},{hour: '2-digit', minute:'2-digit'}) +'?',
         '',
         [
           {
@@ -74,27 +53,52 @@ export default class BookableRides extends React.Component{
             style: 'cancel',
           },
           {text: 'OK', onPress: () => {
-            this.setState({data: DATA2})
+           this.bookRide(RID);
           }},
         ],
         {cancelable: true},
       )
     }
     async getRides(){
+
       var loadedRides = false;
-      var currentRides = await this.state.data.ref('rides').once('value', function (snapshot) {
+      var currentRides = await this.state.data.ref('rides').on('value', (snapshot) => {
         loadedRides = true;
-      });
-      if(loadedRides == true){
-        currentRides.forEach((data) => {
-          this.state.dict.push({
-            RID:   data.key,
-            value: data
+        var dict = []
+
+        snapshot.forEach((child) => {
+          var clients = child.val().clients;
+         
+          if(clients != undefined && clients != null){
+            clients = Object.keys(clients);
+            var hostUID = child.val().hostUID;
+            var auth = this.state.auth;
+
+            if(auth!=null && auth!=undefined && auth.currentUser!=null && auth.currentUser!=undefined){
+              auth = auth.currentUser.uid;
+              // console.log("AUTH:" + auth)
+              
+              //If the current user is already a client/host for this booking then do nothing
+              var matches = clients.filter(item => item.includes(auth));
+              if((matches.length!=null &&  matches.length>0) || hostUID==auth){
+                // console.log("Client is booking host")
+              }
+              else if(matches.length!=null && matches.length==0 && hostUID!=auth){
+                //Else if the current user is not aready a client for this booking, then push the data for the booking into the dictionary for bookings to show the user 
+                dict.push({
+                  RID: child.key,
+                  dateTime: child.val().dateTime,
+                  startAddress: child.val().startAddress,
+                  endAddress: child.val().endAddress,
+                });
+              }
+            }   
+          }
         });
-        })
-      }
-      console.log(this.state.dict[0].value)
-      console.log(DATA)
+        //save dictionary of bookings to state, done loading
+        this.setState({dict : dict, loading: false})
+      });
+
     }
     render(){
         return (
@@ -102,15 +106,19 @@ export default class BookableRides extends React.Component{
             <View style = {styles.generic}>
               <Text style={styles.header}>Book Rides</Text>
               <View style = {styles.list}>
-                <FlatList
-                  data={this.state.data}
+               {this.state.loading == false && 
+               <FlatList
+                  data={this.state.dict}
                   renderItem={({ item }) => 
 
-                      <TouchableOpacity style={styles.item} onPress = {() => this.createAlert(item.dateTime, item.RID)}>
+                      <TouchableOpacity style={styles.item} onPress = {() => {
+                                this.createAlert(item.dateTime, item.RID)
+                                console.log(item)
+                                }}>
                         <View style ={styles.itemText}>
-                          <Text style={styles.title}>{item.dateTime}</Text>
-                          <Text style={styles.subtitle}>{item.startAddress}</Text>
-                          <Text style={styles.subtitle}>{item.endAddress}</Text>
+                          <Text style={styles.title}>{new Date(item.dateTime).toDateString()+", " + new Date(item.dateTime).toLocaleString({},{hour: '2-digit', minute:'2-digit'})}</Text>
+                          <Text style={styles.subtitle}>{"Start Address:\n" + item.startAddress}</Text>
+                          <Text style={styles.subtitle}>{"End Address:\n" + item.endAddress}</Text>
                         </View>
                         {/* <View style={styles.itemImage}>
                           <Image
@@ -121,7 +129,16 @@ export default class BookableRides extends React.Component{
                     </TouchableOpacity>}
 
                   keyExtractor={item => item.id}
-                />
+                />}
+                {
+                  this.state.loading == true && 
+                  <View style={styles.loading}>
+                    <ActivityIndicator
+                    size="large" 
+                    color="#0000ff"
+                    />
+                  </View>
+                }
               </View>
             </View>
           </View>
@@ -169,7 +186,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 14,
     paddingBottom: '1%'
   },
   list:{
@@ -188,5 +205,11 @@ const styles = StyleSheet.create({
     flex:1,
     justifyContent: 'flex-start',
     width: '100%',
+  },
+  loading:{
+    flex:1,
+    flexDirection: "column",
+    justifyContent: 'flex-start',
+    paddingTop: '25%'
   }
 });
