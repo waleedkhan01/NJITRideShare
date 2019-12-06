@@ -15,6 +15,7 @@ import { StyleSheet, Text, View } from 'react-native';
 //Expo install expo-sms
 //Expo install expo-mail-composer
 //npm install lodash
+//npm install react-native-modal
 
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
