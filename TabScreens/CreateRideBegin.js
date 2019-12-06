@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, Image} from 'react-native';
+import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity, Image, ActivityIndicator} from 'react-native';
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
@@ -29,7 +29,11 @@ export default class CreateRide extends React.Component{
               
                 <Image
                 style={{width: 125, height: 125}}
-                source={require('../assets/Images/Plus.png')}
+                source={require('../assets/Images/Plus-512x512.png')}
+                loadingIndicatorSource={<ActivityIndicator
+                  size="large" 
+                  color="#0000ff"
+                  />}
                 />
 
               </TouchableOpacity>

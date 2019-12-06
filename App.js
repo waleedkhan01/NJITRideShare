@@ -12,6 +12,9 @@ import { StyleSheet, Text, View } from 'react-native';
 //npm install react-native-dark-mode
 //npm install react-native-google-places-autocomplete
 //npm install react-native-elements
+//Expo install expo-sms
+//Expo install expo-mail-composer
+//npm install lodash
 
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
@@ -27,6 +30,7 @@ import CreateRide from './TabScreens/CreateRide';
 import CreateRideMenu from './TabScreens/CreateRideMenu';
 import CreateRideBegin from './TabScreens/CreateRideBegin';
 import MyRides from './TabScreens/MyRides';
+import Matches from './TabScreens/Matches';
 import SettingsScreen from './TabScreens/SettingsScreen';
 
 
@@ -88,6 +92,13 @@ const TabNavigator = createBottomTabNavigator({
       headerBackTitle: null,
     }),
   },
+  Matches: {
+    screen: Matches,
+    navigationOptions: () => ({
+      title: `Matches`,
+      headerBackTitle: null,
+    }),
+  },
   SettingsScreen: {
     screen: SettingsScreen,
     navigationOptions: () => ({
@@ -97,8 +108,8 @@ const TabNavigator = createBottomTabNavigator({
   },
   },
   {
-    initialRouteName: 'BookableRides',
-    order: ['BookableRides', 'CreateRide', 'MyRides', 'SettingsScreen']
+    initialRouteName: 'MyRides',
+    order: ['BookableRides', 'CreateRide', 'MyRides', 'Matches','SettingsScreen']
   }
 );
 
