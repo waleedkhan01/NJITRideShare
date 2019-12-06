@@ -17,6 +17,7 @@ import TabBarIcon from './TabScreens/TabBarIcon';
 //Expo install expo-mail-composer
 //npm install lodash
 //npm install react-native-modal
+//npm install moment
 
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
