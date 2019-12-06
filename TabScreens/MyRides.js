@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start', 
     alignContent: 'flex-start',
-    borderRadius: '25',
+    borderRadius: 25,
   },
   modalTextContainer:{
     flex: 1,

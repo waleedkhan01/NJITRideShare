@@ -13,10 +13,6 @@ export default class SettingsScreen extends React.Component{
     constructor(props){
         super(props);
 
-    }
-
-  changeScreen = () => {
-    this.props.navigation.navigate('AuthNavigator');
   }
 
   async signOut() {
