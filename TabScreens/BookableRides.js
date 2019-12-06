@@ -115,8 +115,8 @@ export default class BookableRides extends React.Component{
           <View style = {styles.container}>
             <View style = {styles.generic}>
               <Text style={styles.header}>Book Rides</Text>
+              {this.state.loading == false && this.state.dict.length > 0 &&
               <View style = {styles.list}>
-               {this.state.loading == false && 
                <FlatList
                   data={this.state.dict}
                   renderItem={({ item }) => 
@@ -139,7 +139,7 @@ export default class BookableRides extends React.Component{
                     </TouchableOpacity>}
 
                   keyExtractor={item => item.id}
-                />}
+                />
                 {
                   this.state.loading == true && 
                   <View style={styles.loading}>
@@ -149,7 +149,16 @@ export default class BookableRides extends React.Component{
                     />
                   </View>
                 }
+                
+                
               </View>
+              }
+              {
+                  this.state.loading == false && this.state.dict.length == 0 &&
+                  <View style={styles.noRidesContainer}>
+                    <Text style={styles.noRides}> No Rides to Book Right Now... </Text>
+                  </View>
+              }
             </View>
           </View>
         );
@@ -221,5 +230,14 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: 'flex-start',
     paddingTop: '25%'
+  },
+  noRides:{
+    flex:0.25,
+    textAlign: 'center',
+  },
+  noRidesContainer:{
+    flex:1,
+    justifyContent: 'center',
+
   }
 });

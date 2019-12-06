@@ -65,8 +65,7 @@ const styles = StyleSheet.create({
   imageContainer:{
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingTop: "50%"
   },
   generic:{
     flex:1,
