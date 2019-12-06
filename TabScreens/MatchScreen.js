@@ -15,6 +15,14 @@ import{ ListItem} from 'react-native-elements';
 import _ from 'lodash';
 import StatusBarBackground from '../Screens/statusbar'
 import Constants from 'expo-constants';
+import moment from 'moment';  
+
+
+
+
+
+import * as matchMaker from '../Screens/matchHelper';
+
 
 
 //**************************************************** */
@@ -83,65 +91,72 @@ export default class MatchScreen extends React.Component{
     
     
     var start_location
+    var the_array= []
     snapshot.forEach( function(snap){
+      
+      console.log("*******************************************************OUTTER LOOP")
       rideid_key = snap.child("parent_rideid").val()
       child_rideid_key = snap.child("child_rideid").val()
-      child_rideid_key = "hp_play/rides/"+child_rideid_key
+      child_rideid_key = "rides/"+child_rideid_key
 
-      rideid_key = "hp_play/rides/"+rideid_key
-      console.log('wtf')
+      rideid_key = "rides/"+rideid_key
+      
+      
       console.log(rideid_key + " / "+ child_rideid_key)
 
       rideid_ref = firebase.database().ref(rideid_key)
       // Now we get the ride that goes with it
       rideid_ref.once('value').then(function(ride_snapshot) {
-        end_location = ride_snapshot.child("end_location").val();
-        start_location = ride_snapshot.child("start_location").val();
-        time = ride_snapshot.child("time").val();
+        console.log("*******************************************************GETTING RIDE")
+        end_location = ride_snapshot.child("endAddress").val();
+        start_location = ride_snapshot.child("startAddress").val();
+        time =moment( new Date(ride_snapshot.child("dateTime").val())).format("LL");
+        full_time =moment( new  Date(ride_snapshot.child("dateTime").val())).format("lll");
         console.log(end_location+"/"+start_location)  ;
         
         // Now we get the child ride    
         child_rideid_ref = firebase.database().ref(child_rideid_key)
         child_rideid_ref.once('value').then(function(child_ride_snapshot) {                  
-          
-          child_ride_start_location = child_ride_snapshot.child("start_location").val()
-          child_ride_end_location = child_ride_snapshot.child("end_location").val()
-          child_ride_time = child_ride_snapshot.child("time").val()
+          console.log("*******************************************************GETTING CHILD RIDE")
+          child_ride_start_location = child_ride_snapshot.child("startAddress").val()
+          child_ride_end_location = child_ride_snapshot.child("endAddress").val()
+          child_ride_time = moment(new Date(child_ride_snapshot.child("dateTime").val())).format("LL")
+          child_ride_full_time = moment(new Date(child_ride_snapshot.child("dateTime").val())).format("lll")
           console.log("childride: "+child_ride_start_location )
           // Now the user that goes with the child ride                                   
-          child_rideid_userid = child_ride_snapshot.child("userid").val();
-          child_user_key = "hp_play/users/"+child_rideid_userid
+          child_rideid_userid = child_ride_snapshot.child("hostUID").val();
+          child_user_key = "users/"+child_rideid_userid
           child_user_ref = firebase.database().ref(child_user_key)
           child_user_ref.once('value').then(function(child_user_snapshot) {
-            child_user_name = child_user_snapshot.child("name").val()
+            console.log("*******************************************************GETTING CHILD USER")
+            child_user_name = child_user_snapshot.child("email").val()
             child_user_email = child_user_snapshot.child("email").val()
-            child_user_phone = child_user_snapshot.child("phone").val()
+            child_user_phone = child_user_snapshot.child("phoneNumber").val()
 
             // we are now like three levels of asynch functions deep and we have to be careful to retrigger render
             val= [snap.key ,
               {start_location : start_location,
               end_location: end_location,
               time: time, 
+              full_time: full_time, 
               child_ride_start_location:child_ride_start_location,
               child_ride_end_location:child_ride_end_location,
               child_ride_time:child_ride_time,
+              child_ride_full_time:child_ride_full_time,
               child_user_name:child_user_name,
               child_user_email:child_user_email,
               child_user_phone:child_user_phone}]
 
-              console.log(val)
+              console.log("val"+val)
               the_array = that.state.listitems
-
+              
               the_array.push(_.cloneDeep(val))        
-              val[0] = val[0]+"_"
-              the_array.push(_.cloneDeep(val))        
-                         
-                            
-              console.log("Heres the array: ")
-              console.log( the_array)
+              
+              console.log("snap list size" + that.state.listitems.length)               
+              console.log("the array size " + the_array.length)               
               that.setState({listitems:the_array})
-              console.log("Heres the state: ")
-              console.log( that.state.listitems)
+              console.log("snap list size" + that.state.listitems.length)
+              
           })
         })            
       })
@@ -151,8 +166,10 @@ export default class MatchScreen extends React.Component{
   /****************************************** */ 
   componentDidMount() {
     console.log("hereiam")
-      //const currentUser = firebase.auth().currentUser.uid;
-      firebase.database().ref('hp_play/matches/-LucaAHrnRB3M__T-tZg/').on('value',(snapshot) =>{
+      const currentUser = firebase.auth().currentUser.uid;
+      //firebase.database().ref('hp_play/matches/-LucaAHrnRB3M__T-tZg/').on('value',(snapshot) =>{
+      console.log("loading matches for "+currentUser)
+      firebase.database().ref('matches/'+currentUser).on('value',(snapshot) =>{
               
               this.dosnap(snapshot, this);
               this.setState({loading:false})
@@ -187,7 +204,7 @@ export default class MatchScreen extends React.Component{
     /****************************************** */
     render(){
       console.log('render')  
-      console.log(this.state.listitems.length)
+      console.log("list size" + this.state.listitems.length)
       if (this.state.loading) { 
         console.log('rendering:loading true')
         return (
@@ -197,15 +214,32 @@ export default class MatchScreen extends React.Component{
         )
       }
       else {
-          console.log("rendering: loading false") 
-          
-          console.log(_.cloneDeep(this.state.listitems))
+        if (this.state.listitems.length == 0) {
+          return(
+            <View style = {styles.container}>
+              <View style = {styles.generic}>
+                <View style = {styles.list}>
+                  <Text style={styles.header}>Matched Rides</Text>
+                    <TouchableOpacity style={styles.buttonLight} onPress = {() => matchMaker.matchRide("-LvQu7wk1xV_vuQqDf3f")}>
+                      <Text style = {styles.buttonLightText}>               </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.buttonLight} onPress = {() => matchMaker.matchUser( firebase.auth().currentUser.uid)}>
+                      <Text style = {styles.buttonLightText}>               </Text>
+                    </TouchableOpacity>
+                    <Text style={styles.buttonLightText}>Sorry, no matches right now...</Text>
+                  </View>
+                </View>
+              </View>        
+            )
+
+        }
+        else
           return (
             <View style = {styles.container}>
               <View style = {styles.generic}>
                 <View style = {styles.list}>
                   <Text style={styles.header}>Matched Rides</Text>
-                
+                    
                   <FlatList syle ={"paddingBottom: 5%"}
                     data = {_.cloneDeep(this.state.listitems)}
                     renderItem={this.renderItem.bind(this)} // the bind gives that function the conext it need to get 'this' 
@@ -235,8 +269,8 @@ export default class MatchScreen extends React.Component{
       width: '100%',
       alignItems: "center",
       justifyContent: "space-around",
-      marginTop: Constants.statusBarHeight,
-      borderWidth :1
+      marginTop: Constants.statusBarHeight
+    
     },
     header:{
       flex:.15,

@@ -119,12 +119,12 @@ export default class MatchDetail extends React.Component{
         <MyAppHeaderText>Your ride: </MyAppHeaderText> 
         <MyAppHeaderText>{item.start_location} to</MyAppHeaderText>
         <MyAppHeaderText>{item.end_location}</MyAppHeaderText>
-        <MyAppHeaderText> on {item.time}</MyAppHeaderText>         
+        <MyAppHeaderText> on {item.full_time}</MyAppHeaderText>         
         <MyAppHeaderText></MyAppHeaderText>
         <MyAppHeaderText>{item.child_user_name} is going from </MyAppHeaderText>
         <MyAppHeaderText>{item.child_ride_start_location} to </MyAppHeaderText>
         <MyAppHeaderText>{item.child_ride_end_location}</MyAppHeaderText>
-        <MyAppHeaderText>on {child_ride_time}</MyAppHeaderText>
+        <MyAppHeaderText>on {child_ride_full_time}</MyAppHeaderText>
         <MyAppHeaderText></MyAppHeaderText>
         <MyAppHeaderText>You can reach them at:</MyAppHeaderText>              
         <MyAppHeaderText>{item.child_user_email} </MyAppHeaderText>              
