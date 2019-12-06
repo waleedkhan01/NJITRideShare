@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Platform } from 'react-native';
+import TabBarIcon from './TabScreens/TabBarIcon';
 
 //npm install react-navigation and react-navigation-stack
 //npm install react-navigation-tabs
@@ -78,7 +79,7 @@ const TabNavigator = createBottomTabNavigator({
     navigationOptions: () => ({
       title: `Book`,
       tabBarIcon: ({ focused }) => (
-        <Ionicons focused={focused} name={Platform.OS === 'ios' ? 'ios-book' : 'md-book'} size={32} />
+        <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-book' : 'md-book'}/>
       ),
       headerBackTitle: null,
     }),
@@ -88,7 +89,7 @@ const TabNavigator = createBottomTabNavigator({
     navigationOptions: () => ({
       title: `Create Ride`,
       tabBarIcon: ({ focused }) => (
-        <Ionicons focused={focused} name={Platform.OS === 'ios' ? 'ios-add-circle-outline' : 'md-add-circle-outline'} size={32} />
+        <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-add-circle-outline' : 'md-add-circle-outline'}/>
       ),
       headerBackTitle: null,
     }),
@@ -98,7 +99,7 @@ const TabNavigator = createBottomTabNavigator({
     navigationOptions: () => ({
       title: `My Rides`,
       tabBarIcon: ({ focused }) => (
-        <Ionicons focused={focused} name={Platform.OS === 'ios' ? 'ios-car' : 'md-car'} size={32} />
+        <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-car' : 'md-car'}/>
       ),
       headerBackTitle: null,
     }),
@@ -108,7 +109,7 @@ const TabNavigator = createBottomTabNavigator({
     navigationOptions: () => ({
       title: `Matches`,
       tabBarIcon: ({ focused }) => (
-        <Ionicons focused={focused} name={Platform.OS === 'ios' ? 'ios-git-compare' : 'md-git-compare'} size={32} />
+        <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-git-compare' : 'md-git-compare'}/>
       ),
       headerBackTitle: null,
     }),
@@ -118,7 +119,7 @@ const TabNavigator = createBottomTabNavigator({
     navigationOptions: () => ({
       title: `Settings`,
       tabBarIcon: ({ focused }) => (
-        <Ionicons focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} size={32}/>
+        <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}/>
       ),
       headerBackTitle: null,
     }),
