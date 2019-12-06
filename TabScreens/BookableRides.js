@@ -72,28 +72,33 @@ export default class BookableRides extends React.Component{
     async getRides(){
 
       var loadedRides = false;
+      var auth = this.state.auth;
+      uid = 0;
       var currentRides = await this.state.data.ref('rides').on('value', (snapshot) => {
         loadedRides = true;
         var dict = []
 
         snapshot.forEach((child) => {
+          console.log("Child:");
+          console.log(child)
           var clients = child.val().clients;
-         
-          if(clients != undefined && clients != null){
-            clients = Object.keys(clients);
+          
+          if(auth!=null && auth!=undefined && auth.currentUser!=null && auth.currentUser!=undefined){
+            
             var hostUID = child.val().hostUID;
-            var auth = this.state.auth;
+            uid = auth.currentUser.uid;
 
-            if(auth!=null && auth!=undefined && auth.currentUser!=null && auth.currentUser!=undefined){
-              auth = auth.currentUser.uid;
-              // console.log("AUTH:" + auth)
+            if(clients != undefined && clients != null){
+
+              clients = Object.keys(clients);
               
               //If the current user is already a client/host for this booking then do nothing
-              var matches = clients.filter(item => item.includes(auth));
-              if((matches.length!=null &&  matches.length>0) || hostUID==auth){
+              var matches = clients.filter(item => item.includes(uid));
+
+              if((matches.length!=null &&  matches.length>0) || hostUID==uid){
                 // console.log("Client is booking host")
               }
-              else if(matches.length!=null && matches.length==0 && hostUID!=auth){
+              else if(matches.length!=null && matches.length==0 && hostUID!=uid){
                 //Else if the current user is not aready a client for this booking, then push the data for the booking into the dictionary for bookings to show the user 
                 dict.push({
                   RID: child.key,
@@ -102,11 +107,20 @@ export default class BookableRides extends React.Component{
                   endAddress: child.val().endAddress,
                 });
               }
-            }   
+            } 
+            else if(hostUID != uid){
+              //Else if there is not aready a client for this booking, then push the data for the booking into the dictionary for bookings to show the user 
+              dict.push({
+                RID: child.key,
+                dateTime: child.val().dateTime,
+                startAddress: child.val().startAddress,
+                endAddress: child.val().endAddress,
+              });
+            }  
           }
         });
         //save dictionary of bookings to state, done loading
-        this.setState({dict : dict, loading: false})
+        this.setState({dict : dict, loading: false, uid: uid})
       });
 
     }
@@ -211,7 +225,6 @@ const styles = StyleSheet.create({
   list:{
     flex:1,
     width: '95%',
-    paddingTop: '10%',
   },
   itemText:{
     flex:1

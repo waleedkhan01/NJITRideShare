@@ -340,7 +340,6 @@ const styles = StyleSheet.create({
   list:{
     flex:1,
     width: '95%',
-    paddingTop: '10%',
   },
   itemText:{
     flex:1
