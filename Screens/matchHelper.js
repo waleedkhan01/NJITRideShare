@@ -37,7 +37,7 @@ function times_with_flex(when_A , flex_A,  when_B, flex_B)
 
 
 
-function haversine_lat_long(start , end)
+export function haversine_lat_long(start , end)
 {
  
  
@@ -199,6 +199,13 @@ export function matchRide(rideKey)
                               child_rideid  :  childsnapshot.key,  
                               userid: parent_userid    
                             })
+                        child_matches_ref_ref = child_matches_ref.push({
+                            match :'match', 
+                            parent_rideid  :childsnapshot.key,
+                            child_rideid  : rideKey,  
+                            userid: child_userid_match    
+                            })
+
 
                           
                           

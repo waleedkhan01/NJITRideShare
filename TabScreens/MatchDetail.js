@@ -17,7 +17,7 @@ import StatusBarBackground from '../Screens/statusbar'
 
 import * as SMS from 'expo-sms';  // EXPO INSTALL expo-sms
 import * as MailComposer from 'expo-mail-composer'; //expo install expo-mail-composer
-
+import * as db from '../Screens/databaseHelper';
 import { Linking } from 'expo';
 //*********************************************************************************************************************************** */
 export default class MatchDetail extends React.Component{
@@ -51,13 +51,54 @@ export default class MatchDetail extends React.Component{
 
     this.props.navigation.navigate('Profile');
 
-  }
+    
 
+  }
+  bookRide(riderId, driverId, rideId)
+  {
+    console.log("Rider:" + riderId +" joining ride "+rideId)
+    riderJoinKey='users/' + riderId +"/ridesJoined/"+rideId
+    riderKey='rides/' + rideId +"/clients/" + riderId
+    
+    var rideJoinRef =  firebase.database().ref(riderJoinKey);
+    var rideRef =   firebase.database().ref(riderKey);
+    
+    
+    newRef = rideJoinRef.set({
+      [rideId ]:true,       
+    })
+
+    newRef = rideRef.set({
+      [riderId] :true,       
+    })
+
+
+
+  }
   bookMyRide(){
 
+    console.log("Booking my ride")
+    console.log(this.state.item)
+    riderId =  this.state.item.child_user_id
+    driverId = this.state.item.userId
+    rideId = this.state.item.rideId    
+    db.removeRide(item.childRideId)
+    this.bookRide(riderId, driverId, rideId)
+    this.props.navigation.goBack()
 
   }
   bookTheirRide(){
+
+
+    console.log("Booking their ride")
+    console.log(this.state.item)
+    riderId =  this.state.item.userId
+    driverId = this.state.item.child_user_id
+    rideId = this.state.item.childRideId
+    
+    this.bookRide(riderId, driverId, rideId)
+    db.removeRide(this.state.item.rideId)
+    this.props.navigation.goBack()
   }
     
 
@@ -67,8 +108,8 @@ export default class MatchDetail extends React.Component{
       'Book Ride',
       'Keep which ride?  This will cancel the other.',
       [
-        {text: 'My Ride', onPress: () => console.log('Booking My Ride')},
-        {text: 'Their Ride', onPress: () => console.log('Booking Their ride'), style: 'cancel'}
+        {text: 'My Ride', onPress: () => this.bookMyRide()},
+        {text: 'Their Ride', onPress: () => this.bookTheirRide(), style: 'cancel'}
       ],
       { cancelable: true }
     )
@@ -116,12 +157,13 @@ export default class MatchDetail extends React.Component{
             
 
         <MyAppHeaderText></MyAppHeaderText>
-        <MyAppHeaderText>Your ride: </MyAppHeaderText> 
+        <MyAppHeaderGreenText>Your ride: </MyAppHeaderGreenText> 
         <MyAppHeaderText>{item.start_location} to</MyAppHeaderText>
         <MyAppHeaderText>{item.end_location}</MyAppHeaderText>
         <MyAppHeaderText> on {item.full_time}</MyAppHeaderText>         
-        <MyAppHeaderText></MyAppHeaderText>
-        <MyAppHeaderText>{item.child_user_name} is going from </MyAppHeaderText>
+        <MyAppHeaderBlueText></MyAppHeaderBlueText>
+        <MyAppHeaderText>Their ride: </MyAppHeaderText> 
+        <MyAppHeaderText>{item.child_user_name}</MyAppHeaderText>
         <MyAppHeaderText>{item.child_ride_start_location} to </MyAppHeaderText>
         <MyAppHeaderText>{item.child_ride_end_location}</MyAppHeaderText>
         <MyAppHeaderText>on {child_ride_full_time}</MyAppHeaderText>
@@ -174,6 +216,27 @@ export default class MatchDetail extends React.Component{
       );
     }
   }
+
+  class MyAppHeaderGreenText extends React.Component {
+    render() {
+      return (
+        <Text>
+        <Text style={{fontSize: 18,color: 'green'}}>{this.props.children}</Text>
+        </Text>
+      );
+    }
+  }
+
+  class MyAppHeaderBlueText extends React.Component {
+    render() {
+      return (
+        <Text>
+          <Text style={{fontSize: 18,color: 'blue'}}>{this.props.children}</Text>
+        </Text>
+      );
+    }
+  }
+
 
   const styles = StyleSheet.create({
     container: {
