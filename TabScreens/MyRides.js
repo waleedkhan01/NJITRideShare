@@ -228,7 +228,7 @@ export default class BookableRides extends React.Component{
                         
                     </TouchableOpacity>}
 
-                  keyExtractor={item => item.id}
+                  keyExtractor={item => item.RID}
                 />
                 { this.state.ridePicked!=undefined &&
                 <Modal

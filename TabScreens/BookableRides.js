@@ -160,7 +160,7 @@ export default class BookableRides extends React.Component{
                         </View> */}
                     </TouchableOpacity>}
 
-                  keyExtractor={item => item.id}
+                  keyExtractor={item => item.RID}
                 />
                 {
                   this.state.loading == true && 
