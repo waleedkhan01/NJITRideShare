@@ -42,10 +42,17 @@ export default class BookableRides extends React.Component{
 
     async bookRide(RID){
       var uid = this.state.user.uid;
-      if(uid){
-        console.log('users/'+uid+'/ridesJoined/'+RID)
+
+      var userData;
+      
+      await this.state.data.ref('users/'+uid).once('value', (snapshot) => {
+        userData = snapshot.val();
+      })
+
+      if(userData){
+        userData.ridesJoined = null;
         await this.state.data.ref('users/'+uid+'/ridesJoined/'+RID).set(true);
-        await this.state.data.ref('rides/'+RID+'/clients/'+uid).set(true, () => {
+        await this.state.data.ref('rides/'+RID+'/clients/'+uid).set(userData, () => {
           this.getRides();
         });
         
@@ -74,6 +81,7 @@ export default class BookableRides extends React.Component{
       var loadedRides = false;
       var auth = this.state.auth;
       uid = 0;
+      
       var currentRides = await this.state.data.ref('rides').on('value', (snapshot) => {
         loadedRides = true;
         var dict = []

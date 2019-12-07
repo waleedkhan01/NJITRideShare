@@ -159,39 +159,52 @@ export default class CreateRideMenu extends React.Component{
       var end = this.state.endLocation;
       var uid = firebase.auth().currentUser.uid;
 
+      var userData;
+      
+      await this.state.data.ref('users/'+uid).once('value', (snapshot) => {
+        userData = snapshot.val();
+      })
+
       if(fd == undefined || td == undefined ||  fs == undefined  || fe == undefined || start == undefined || end == undefined || uid == undefined){
         return;
       }
+      else if(userData){
 
-      var dateTime = this.combineDateTime(fd, td);
+        var dateTime = this.combineDateTime(fd, td);
       
-      // console.log(new Date(dateTime).toString());
+        // console.log(new Date(dateTime).toString());
+  
+        //Create a new Ride in the database
+        var pushID = await this.state.data.ref('rides/').push({
+            clientLimit: '1',
+            hostUID: uid,
+            hostName: (userData.firstName + " " + userData.lastName),
+            hostPhone: userData.phoneNumber,
+            hostEmail: userData.email,
+            startAddress: fs,
+            startLatLong: { lat: start.lat, long: start.long},
+            endAddress: fe,
+            endLatLong: { lat: end.lat, long: end.long}, 
+            timeFlex: '15',
+            timeOutOfWay: '15',
+            dateTime: dateTime,
+          }).catch(function(error){
+            console.log(error)
+            console.log("ERROR: Unable to create Ride");
+            return;
+          });
+  
+          console.log("PUSH KEY: "+pushID.key);
+          //Add the ride under the user as well
+          await this.state.data.ref('users/' + uid + '/ridesCreated').update({
+            [pushID.key] : true
+          })
+  
+          matchMaker.start_match(pushID.key);
+          this.props.navigation.goBack();
+      }
 
-      //Create a new Ride in the database
-      var pushID = await this.state.data.ref('rides/').push({
-          clientLimit: '1',
-          hostUID: uid,
-          startAddress: fs,
-          startLatLong: { lat: start.lat, long: start.long},
-          endAddress: fe,
-          endLatLong: { lat: end.lat, long: end.long}, 
-          timeFlex: '15',
-          timeOutOfWay: '15',
-          dateTime: dateTime
-        }).catch(function(error){
-          console.log(error)
-          console.log("ERROR: Unable to create Ride");
-          return;
-        });
-
-        console.log("PUSH KEY: "+pushID.key);
-        //Add the ride under the user as well
-        await this.state.data.ref('users/' + uid + '/ridesCreated').update({
-          [pushID.key] : true
-        })
-
-        matchMaker.start_match(pushID.key);
-        this.props.navigation.goBack();
+      
         
         
         

@@ -54,7 +54,29 @@ export default class BookableRides extends React.Component{
           var clients = child.val().clients;
           var hostUID = child.val().hostUID;
           var auth = this.state.auth;
+          
+          var rideSharers;
+          var rideSharersString = "";
 
+          if(clients){
+            rideSharers = Object.values(clients);
+            rideSharers.forEach((item)=>{
+
+              var FN = item.firstName;
+              var LN = item.lastName;
+              var email = item.email;
+              var phone = item.phoneNumber;
+
+              if(rideSharersString == "" && item!=undefined && FN && LN && email && phone){
+                rideSharersString = rideSharersString + FN + " " + LN + " (" + email + ", " + phone + ")";
+              }
+              else if(rideSharersString != "" && item!=undefined && FN && LN && email && phone){
+                rideSharersString = rideSharersString + ", "+ FN + " " + LN + " (" + email + ", " + phone + ")";
+              }
+            })
+          }
+          
+          
 
           if(auth!=null && auth!=undefined && auth.currentUser!=null && auth.currentUser!=undefined){
             auth = auth.currentUser.uid;
@@ -74,7 +96,7 @@ export default class BookableRides extends React.Component{
                   endAddress: child.val().endAddress,
                   isHost: false,
                   hostName: child.val().hostName,
-                  clientNames: child.val().clientNames,
+                  clientNames: rideSharersString,
                   driverPhoneNumber: child.val().hostName,
                   driverEmail: child.val().hostEmail
                 });
@@ -87,7 +109,7 @@ export default class BookableRides extends React.Component{
                   endAddress: child.val().endAddress,
                   isHost: true,
                   hostName: child.val().hostName,
-                  clientNames: child.val().clientNames,
+                  clientNames: rideSharersString,
                   driverPhoneNumber: child.val().hostName,
                   driverEmail: child.val().hostEmail
                 });
@@ -108,6 +130,7 @@ export default class BookableRides extends React.Component{
                 endAddress: child.val().endAddress,
                 isHost: true,
                 hostName: child.val().hostName,
+                clientNames: rideSharersString,
                 driverPhoneNumber: child.val().hostPhone,
                 driverEmail: child.val().hostEmail,
               });
@@ -219,53 +242,53 @@ export default class BookableRides extends React.Component{
 
                     <Text style = {styles.modalTitle}>Ride Details</Text>
 
-                    <View style = {styles.modalTextContainer}>
-                      <Text style = {styles.modalTextTitle}>Driver Name:</Text>
+                    <View style = {styles.modalTextContainerName}>
+                      <Text style = {styles.modalTextTitle}>Driver Name: </Text>
                       <View style = {styles.modalInfoContainer}>
                         <Text style = {styles.modalText}>{ this.state.ridePicked.hostName}</Text>
                       </View>
                     </View>
 
-                    <View style = {styles.modalTextContainer}>
-                      <Text style = {styles.modalTextTitle}>Driver Phone Number:</Text>
+                    <View style = {styles.modalTextContainerPhone}>
+                      <Text style = {styles.modalTextTitle}>Driver Phone Number: </Text>
                       <View style = {styles.modalInfoContainer}>
                         
-                        <Text style = {styles.modalText}>123-456-7890</Text>
+                        <Text style = {styles.modalText}>{this.state.ridePicked.driverPhoneNumber}</Text>
                       </View>
                     </View>
 
-                    <View style = {styles.modalTextContainer}>
-                      <Text style = {styles.modalTextTitle}>Driver Email:</Text>
+                    <View style = {styles.modalTextContainerEmail}>
+                      <Text style = {styles.modalTextTitle}>Driver Email: </Text>
                       <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>me@you.com</Text>
+                        <Text style = {styles.modalText}>{this.state.ridePicked.driverEmail}</Text>
                       </View>
                     </View>
 
-                    <View style = {styles.modalTextContainer}>
-                      <Text style = {styles.modalTextTitle}>Ride Sharers:</Text>
+                    <View style = {styles.modalTextContainerTime}>
+                      <Text style = {styles.modalTextTitle}>Pickup Time: </Text>
                       <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>Alex Blue, Cristina Decker, Eric Freeman</Text>
+                        <Text style = {styles.modalText}>{new Date(this.state.ridePicked.dateTime).toLocaleString({},{hour: '2-digit', minute:'2-digit'})}</Text>
                       </View>
                     </View>
 
-                    <View style = {styles.modalTextContainer}>
-                      <Text style = {styles.modalTextTitle}>Start Address:</Text>
+                    <View style = {styles.modalTextContainerAddress}>
+                      <Text style = {styles.modalTextTitle}>Start Address: </Text>
                       <View style = {styles.modalInfoContainer}>
                         <Text style = {styles.modalText}>{this.state.ridePicked.startAddress}</Text>
                       </View>
                     </View>
 
-                    <View style = {styles.modalTextContainer}>
-                      <Text style = {styles.modalTextTitle}>Destination:</Text>
+                    <View style = {styles.modalTextContainerAddress}>
+                      <Text style = {styles.modalTextTitle}>Destination: </Text>
                       <View style = {styles.modalInfoContainer}>
                         <Text style = {styles.modalText}>{this.state.ridePicked.endAddress}</Text>
                       </View>
                     </View>
 
                     <View style = {styles.modalTextContainer}>
-                      <Text style = {styles.modalTextTitle}>Pickup Time:</Text>
+                      <Text style = {styles.modalTextTitle}>Ride Sharers: </Text>
                       <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>{new Date(this.state.ridePicked.dateTime).toLocaleString({},{hour: '2-digit', minute:'2-digit'})}</Text>
+                        <Text style = {styles.modalText}>{this.state.ridePicked.clientNames}</Text>
                       </View>
                     </View>
 
@@ -375,7 +398,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalView:{
-    flex: 0.77, 
+    flex: 0.9, 
     paddingTop: '10%',
     flexDirection: 'column',
     backgroundColor: 'rgba(255, 255, 255, 1)', 
@@ -386,23 +409,49 @@ const styles = StyleSheet.create({
   },
   modalTextContainer:{
     flex: 1,
+    paddingLeft: '5%',
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+  },
+  modalTextContainerName:{
+    flex: 0.4,
+    paddingLeft: '5%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  modalTextContainerPhone:{
+    flex: 0.35,
+    paddingLeft: '5%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  modalTextContainerEmail:{
+    flex: 0.35,
+    paddingLeft: '5%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  modalTextContainerTime:{
+    flex: 0.25,
+    paddingLeft: '5%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  modalTextContainerAddress:{
+    flex: 0.5,
+    paddingLeft: '5%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   modalInfoContainer:{
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap'
   },
   modalTextTitle:{
     textAlign: 'left',
-    paddingLeft: '5%',
     fontWeight: "700",
     fontSize: 16
   },
   modalText:{
     textAlign: 'left',
-    paddingLeft: '2%',
     fontSize: 16
   },
   modalTitle:{
