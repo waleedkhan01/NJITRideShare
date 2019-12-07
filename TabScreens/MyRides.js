@@ -11,7 +11,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 import Modal from "react-native-modal";
-
+import * as db from '../Screens/databaseHelper';
 
 export default class BookableRides extends React.Component{
     constructor(props){
@@ -178,9 +178,11 @@ export default class BookableRides extends React.Component{
       }
       //if the user created the ride, delete the entire ride
       else if(ridePicked.isHost == true){
-        await this.state.data.ref('users/'+uid+'/ridesCreated/'+RID).set(null);
-        await this.state.data.ref('rides/'+RID).set(null, async () => {
-        });
+        db.removeRide(RID)
+
+        //await this.state.data.ref('users/'+uid+'/ridesCreated/'+RID).set(null);
+        //await this.state.data.ref('rides/'+RID).set(null, async () => {
+        //});
       }
     }
 
