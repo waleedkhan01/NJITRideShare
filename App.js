@@ -128,7 +128,7 @@ const TabNavigator = createBottomTabNavigator({
   },
   {
     initialRouteName: 'MyRides',
-    order: ['BookableRides', 'CreateRide', 'MyRides', 'Matches','SettingsScreen']
+    order: ['Matches', 'BookableRides', 'MyRides', 'CreateRide','SettingsScreen']
   }
 );
 
