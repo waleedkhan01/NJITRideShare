@@ -139,7 +139,7 @@ const AppStack = createStackNavigator(
   },
   {
     headerMode: "none",
-    initialRouteName: "TabNavigator"
+    initialRouteName: "AuthNavigator"
   }
 )
 

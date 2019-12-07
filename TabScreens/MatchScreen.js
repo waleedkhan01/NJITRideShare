@@ -92,14 +92,15 @@ export default class MatchScreen extends React.Component{
     
     var start_location
     var the_array= []
+    that.setState({listitems:[]})
     snapshot.forEach( function(snap){
-      
+      matchKey = snap.key
       console.log("*******************************************************OUTTER LOOP")
-      rideid_key = snap.child("parent_rideid").val()
-      child_rideid_key = snap.child("child_rideid").val()
-      child_rideid_key = "rides/"+child_rideid_key
+      rideId = snap.child("parent_rideid").val()
+      child_rideid = snap.child("child_rideid").val()
+      child_rideid_key = "rides/"+child_rideid
 
-      rideid_key = "rides/"+rideid_key
+      rideid_key = "rides/"+rideId
       
       
       console.log(rideid_key + " / "+ child_rideid_key)
@@ -108,6 +109,7 @@ export default class MatchScreen extends React.Component{
       // Now we get the ride that goes with it
       rideid_ref.once('value').then(function(ride_snapshot) {
         console.log("*******************************************************GETTING RIDE")
+        user_id = ride_snapshot.child("hostUID").val();
         end_location = ride_snapshot.child("endAddress").val();
         start_location = ride_snapshot.child("startAddress").val();
         time =moment( new Date(ride_snapshot.child("dateTime").val())).format("LL");
@@ -126,9 +128,11 @@ export default class MatchScreen extends React.Component{
           // Now the user that goes with the child ride                                   
           child_rideid_userid = child_ride_snapshot.child("hostUID").val();
           child_user_key = "users/"+child_rideid_userid
+          console.log("*******************************************************GETTING CHILD USER")
           child_user_ref = firebase.database().ref(child_user_key)
           child_user_ref.once('value').then(function(child_user_snapshot) {
-            console.log("*******************************************************GETTING CHILD USER")
+            
+            child_user_id  = child_user_snapshot.key
             child_user_name = child_user_snapshot.child("email").val()
             child_user_email = child_user_snapshot.child("email").val()
             child_user_phone = child_user_snapshot.child("phoneNumber").val()
@@ -139,6 +143,11 @@ export default class MatchScreen extends React.Component{
               end_location: end_location,
               time: time, 
               full_time: full_time, 
+              matchKey: matchKey, 
+              userId: user_id, 
+              rideId: rideId, 
+              childRideId : child_rideid,
+              child_user_id : child_user_id,
               child_ride_start_location:child_ride_start_location,
               child_ride_end_location:child_ride_end_location,
               child_ride_time:child_ride_time,
@@ -162,33 +171,40 @@ export default class MatchScreen extends React.Component{
       })
     })
   };
-     
+  loadMatches()
+  {
+    const currentUser = firebase.auth().currentUser.uid;
+    firebase.database().ref('matches/'+currentUser).on('value',(snapshot) =>{
+              
+    this.dosnap(snapshot, this);
+    this.setState({loading:false})
+    console.log("listener done... I should be seeing something...")
+})
+
+
+  }     
   /****************************************** */ 
   componentDidMount() {
     console.log("hereiam")
       const currentUser = firebase.auth().currentUser.uid;
       //firebase.database().ref('hp_play/matches/-LucaAHrnRB3M__T-tZg/').on('value',(snapshot) =>{
       console.log("loading matches for "+currentUser)
-      firebase.database().ref('matches/'+currentUser).on('value',(snapshot) =>{
-              
-              this.dosnap(snapshot, this);
-              this.setState({loading:false})
-              console.log("listener done... I should be seeing something...")
-      })
-        
+      this.loadMatches()
     }  
 
     touchlist(item)
     {
       console.log("touched") 
-      this.props.navigation.navigate('MatchDetail', {detail:item}); 
+      this.props.navigation.navigate('MatchDetail', {detail:item});  
+
     }
     /****************************************** */
     renderItem({item})  
     {      
       console.log("renderitem:"+ item[1].child_user_name)
-      Line1 = item[1].child_user_name +" is leaving from " + item[1].child_ride_start_location +" on "+ item[1].child_ride_time
-      Line2 = "Close to your ride "+ item[1].start_location+" at "+ item[1].time
+      Line1 = item[1].child_user_name 
+      Line2= item[1].child_ride_start_location +" on "+ item[1].child_ride_time
+      Line3 = "Close to your ride "+ item[1].start_location+" at "+ item[1].time
           
       return(
         <View style = {styles.list}>
@@ -196,6 +212,7 @@ export default class MatchScreen extends React.Component{
             <View style ={styles.itemText}>
               <Text style={styles.midtitle}>{Line1}</Text>
               <Text style={styles.subtitle}>{Line2} </Text>
+              <Text style={styles.subtitle}>{Line3} </Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -226,7 +243,11 @@ export default class MatchScreen extends React.Component{
                     <TouchableOpacity style={styles.buttonLight} onPress = {() => matchMaker.matchUser( firebase.auth().currentUser.uid)}>
                       <Text style = {styles.buttonLightText}>               </Text>
                     </TouchableOpacity>
-                    <Text style={styles.buttonLightText}>Sorry, no matches right now...</Text>
+                    <View style ={styles.buttonLightText}>
+                      
+                        <Text style ={{ textAlign:'center'}}>Sorry, no matches right now...</Text>
+                      
+                    </View>
                   </View>
                 </View>
               </View>        
