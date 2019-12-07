@@ -15,6 +15,8 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { Overlay } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 import * as matchMaker from '../Screens/matchHelper';
+//import { googleAutoCompleteConfig } from '../Screens/GoogleAutoCompleteHelper';
+
 
 export default class CreateRideMenu extends React.Component{
     constructor(props){
@@ -228,44 +230,46 @@ export default class CreateRideMenu extends React.Component{
                     <Text style={styles.actionText} onPress={() => this.hideGoogleAutoComplete()}>Cancel</Text>
                     <Text style={styles.actionText} onPress={() => this.hideGoogleAutoComplete()}>Confirm</Text>
                   </View>
+                
+                  <GooglePlacesAutocomplete
+                    placeholder='Enter Location'
+                    minLength={2}
+                    autoFocus={false}
+                    returnKeyType={'default'}
+                    listViewDisplayed='auto'
+                    fetchDetails={true}
+                    renderDescription= {row => row.description} // custom description render
 
-                    <GooglePlacesAutocomplete
-                      placeholder='Enter Location'
-                      minLength={2}
-                      autoFocus={false}
-                      returnKeyType={'default'}
-                      listViewDisplayed='auto'
-                      fetchDetails={true}
-                      renderDescription={row => row.description} // custom description render
-                      onPress={(data, details = null) => {
-                        //console.log(data, details);                      
-                        let formatted = 'formatted' + this.state.inputAddress
-                        this.setState({ [this.state.inputAddress]: { lat: details.geometry.location.lat, long: details.geometry.location.lng } }
-                          );
-                        this.setState({ [formatted]: data.description});
+                    
+                    onPress={(data, details = null) => {
+                      //console.log(data, details);                      
+                      let formatted = 'formatted' + this.state.inputAddress
+                      this.setState({ [this.state.inputAddress]: { lat: details.geometry.location.lat, long: details.geometry.location.lng } }
+                      );
+                      this.setState({ [formatted]: data.description });
 
-                        /*console.log(this.state.formattedstartLocation);
-                        console.log(this.state.formattedendLocation);*/
-                      }}
+                      console.log(this.state.formattedstartLocation);
+                      console.log(this.state.formattedendLocation);
+                    }}
+                    query={{
+                      key: 'AIzaSyCkSccKLoUZ2pGuwh35miYfrSVGSFTYcoc',
+                      language: 'en', // language of the results
+                      types: 'address'
+                    }}
 
-                      query={{
-                        key: 'AIzaSyCkSccKLoUZ2pGuwh35miYfrSVGSFTYcoc',
-                        language: 'en', // language of the results
-                        types: 'address'
-                      }}
-                      styles={{
-                        textInputContainer: {
-                          width: '100%'
-                        },
-                        description: {
-                          fontWeight: 'bold'
-                        },
-                        predefinedPlacesDescription: {
+                    styles = {{
+                      textInputContainer: {
+                        width: '100%'
+                      },
+                      description: {
+                        fontWeight: 'bold'
+                      },
+                      predefinedPlacesDescription: {
                           color: '#1faadb'
                         }
-                      }}
-                      currentLocation={false}
+                    }}
                     />
+        
                  </View>
                </Overlay>
              

@@ -9,6 +9,10 @@ import {firebaseConfig} from '../Screens/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { Overlay } from 'react-native-elements';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
+import * as matchMaker from '../Screens/matchHelper';
 
 
 
@@ -19,10 +23,62 @@ export default class BookableRides extends React.Component{
           loading: true,
           data: firebase.database(),
           dict: [],
-          auth: firebase.auth()
+          auth: firebase.auth(),
+          isGoogleAutoCompleteVisible: false,
+          startLocation: {},
+          formattedstartLocation: undefined,
+          endLocation: {},
+          formattedendLocation: undefined,
+          inputAddress: '',
+          sorted: false
         }
     }
-    
+
+    showGoogleAutoComplete = () => {
+      this.setState({ isGoogleAutoCompleteVisible: true });
+      //console.log(this.state.isGoogleAutoCompleteVisible);
+      };
+
+    hideGoogleAutoComplete = () => {
+      this.setState({ isGoogleAutoCompleteVisible: false });
+      //console.log(this.state.isGoogleAutoCompleteVisible);
+      };
+
+  distCompare(a, b) {
+    console.log('Sorting by distance')
+    const distA = a.totalDist
+    const distB = b.totalDist
+
+    let comparison = 0;
+
+    if (distA > distB) {
+        comparison = 1;
+      }
+    else if (distA < distB) {
+        comparison = -1;
+      }
+      return comparison;
+  };
+
+  distanceSort = () => {
+    console.log('Sort started')
+    let dict = this.state.dict;
+    let filterStartAddress = this.state.startLocation;
+    let filterendAddress = this.state.endLocation;
+
+    for (var i = 0; i < dict.length; i++) {
+      console.log('for loop started')
+      let startLocation = dict[i].startLatLong
+      let endLocation = dict[i].endLatLong
+
+      //console.log(startLocation.lat + " " + endLocation.long)
+      let totalDist = matchMaker.haversine_lat_long(filterStartAddress, startLocation)
+      totalDist += matchMaker.haversine_lat_long(filterendAddress, endLocation)
+      console.log(totalDist);
+      dict[i].totalDist = totalDist;      
+    }
+    this.setState({ dict: dict })
+  };
 
     async componentWillMount(){
 
@@ -100,29 +156,52 @@ export default class BookableRides extends React.Component{
                   dateTime: child.val().dateTime,
                   startAddress: child.val().startAddress,
                   endAddress: child.val().endAddress,
+                  startLatLong: child.val().startLatLong,
+                  endLatLong: child.val().endLatLong,
+                  totalDist: 0
                 });
+                console.log(dict)
               }
             }   
           }
         });
         //save dictionary of bookings to state, done loading
-        this.setState({dict : dict, loading: false})
+        this.setState({ dict: dict, loading: false })
       });
 
     }
     render(){
-        return (
+      return (
           <View style = {styles.container}>
             <View style = {styles.generic}>
-              <Text style={styles.header}>Book Rides</Text>
+            <Text style={styles.header}>Book Rides</Text>
+            <View style={styles.filter}>
+              <TouchableOpacity style={styles.buttonLight} onPress={() => {
+                this.showGoogleAutoComplete();
+                this.setState({ inputAddress: "startLocation" })
+              }}>
+                <Text style={styles.buttonLightText}>Select Start Address</Text>
+              </TouchableOpacity>
+
+                <TouchableOpacity style={styles.buttonLight} onPress={() => {
+                  this.showGoogleAutoComplete();
+                  this.setState({ inputAddress: "endLocation" })
+                }}>
+                  <Text style={styles.buttonLightText}>Select End Address</Text>
+                </TouchableOpacity>
+                <AntDesign name="filter" size={32} color="white" onPress={() => {
+                  this.distanceSort()
+                  this.setState({sorted:  true});
+                }} />
+            </View>
+
               {this.state.loading == false && this.state.dict.length > 0 &&
               <View style = {styles.list}>
                <FlatList
-                  data={this.state.dict}
-                  renderItem={({ item }) => 
-
+                  data={this.state.sorted ? this.state.dict.sort(this.distCompare) : this.state.dict}
+                  renderItem={({ item }) =>
                       <TouchableOpacity style={styles.item} onPress = {() => {
-                                this.createAlert(item.dateTime, item.RID)
+                      this.createAlert(item.dateTime, item.RID)
                                 console.log(item)
                                 }}>
                         <View style ={styles.itemText}>
@@ -138,7 +217,7 @@ export default class BookableRides extends React.Component{
                         </View> */}
                     </TouchableOpacity>}
 
-                  keyExtractor={item => item.id}
+                  keyExtractor={item => item.RID}
                 />
                 {
                   this.state.loading == true && 
@@ -149,7 +228,60 @@ export default class BookableRides extends React.Component{
                     />
                   </View>
                 }
-                
+
+                <Overlay
+                  isVisible={this.state.isGoogleAutoCompleteVisible}
+                  onBackdropPress={() => this.setState({ isGoogleAutoCompleteVisible: false })}
+                >
+                  <View style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-around' }}>
+                    <View style={{ alignSelf: 'center', height: 50, width: '80%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      {/*<Ionicons name="md-close" size={32} color="red" onPress={() => this.hideGoogleAutoComplete()}/>
+                  <Ionicons name="md-checkmark" size={32} color="green" onPress={() => this.hideGoogleAutoComplete()} />*/}
+                      <Text style={styles.actionText} onPress={() => this.hideGoogleAutoComplete()}>Cancel</Text>
+                      <Text style={styles.actionText} onPress={() => this.hideGoogleAutoComplete()}>Confirm</Text>
+                    </View>
+
+                    <GooglePlacesAutocomplete
+                      placeholder='Enter Location'
+                      minLength={2}
+                      autoFocus={false}
+                      returnKeyType={'default'}
+                      listViewDisplayed='auto'
+                      fetchDetails={true}
+                      renderDescription={row => row.description} // custom description render
+
+
+                      onPress={(data, details = null) => {
+                        //console.log(data, details);
+                        let formatted = 'formatted' + this.state.inputAddress
+                        this.setState({ [this.state.inputAddress]: { lat: details.geometry.location.lat, long: details.geometry.location.lng } }
+                        );
+                        this.setState({ [formatted]: data.description });
+
+                        console.log(this.state.formattedstartLocation);
+                        console.log(this.state.formattedendLocation);
+                      }}
+                      query={{
+                        key: 'AIzaSyCkSccKLoUZ2pGuwh35miYfrSVGSFTYcoc',
+                        language: 'en', // language of the results
+                        types: 'address'
+                      }}
+
+                      styles={{
+                        textInputContainer: {
+                          width: '100%'
+                        },
+                        description: {
+                          fontWeight: 'bold'
+                        },
+                        predefinedPlacesDescription: {
+                          color: '#1faadb'
+                        }
+                      }}
+                    />
+
+                  </View>
+                </Overlay>
                 
               </View>
               }
@@ -238,6 +370,33 @@ const styles = StyleSheet.create({
   noRidesContainer:{
     flex:1,
     justifyContent: 'center',
-
+  },
+  buttonLight: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderColor: 'black',
+    borderWidth: 3,
+    borderRadius: 15,
+    width: "30%",
+    shadowColor: 'rgba(0,0,0, .4)', // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, //IOS
+    elevation: 2, // Android
+    color: 'white',
+  },
+  buttonLightText: {
+    color: 'black',
+    fontSize: 12
+  },
+  filter: {
+    flex: 0.1,
+    flexDirection: "row",
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  actionText: {
+    color: 'cornflowerblue'
   }
 });
