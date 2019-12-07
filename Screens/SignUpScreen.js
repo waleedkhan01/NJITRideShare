@@ -15,6 +15,8 @@ export default class SignUpScreen extends React.Component{
           
         this.state = {
             userEmail : '',
+            firstName: '',
+            lastName: '',
             userPassword: '',
             userPasswordInitial: '',
             data: firebase.database(),
@@ -31,12 +33,13 @@ export default class SignUpScreen extends React.Component{
       var pass = this.state.userPassword;
       var initialPass = this.state.userPasswordInitial;
       var phone = this.state.phoneNumber;
+      var firstName = this.state.firstName;
+      var lastName = this.state.lastName;
       var err = "";
       var emailExists = false;
 
-      
-      if(email.length<=0 || pass.length<=0){
-        this.setState({"signUpError": "Please enter email/password", 'success': false});
+      if(email.length<=0 || pass.length<=5 || firstName.length<=1 || lastName.length<=1){
+        this.setState({"signUpError": "Please enter name, email, password, and phone number", 'success': false});
         return;
       }
       else if ((phone == null) || (phone.length > 11 || phone.length<10)){
@@ -45,6 +48,10 @@ export default class SignUpScreen extends React.Component{
       }
       else if(pass!=initialPass && email.length>6){
         this.setState({"signUpError": "Passwords do not match", 'success': false});
+        return;
+      }
+      else if(firstName.length<=1 || lastName.length<=1){
+        this.setState({"signUpError": "Please enter name", 'success': false});
         return;
       }
       
@@ -85,6 +92,8 @@ export default class SignUpScreen extends React.Component{
           this.state.data.ref('users/' + userID).set({
             email: email,
             phoneNumber: phone,
+            firstName: firstName,
+            lastName: lastName
           });
         }
 
@@ -128,6 +137,29 @@ export default class SignUpScreen extends React.Component{
               </View>  
 
               <View style ={styles.spacer}/>
+              <View style ={styles.email}>
+                <TextInput type="text" style={styles.name} 
+                  placeholder = "First Name" keyboardType = "name-phone-pad" textContentType = "namePrefix" 
+                  onChangeText = {(text) => this.setState({"firstName": text})
+                                }
+                  value = {this.state.firstName}
+                  autoCompleteType = "name"
+                  autoCorrect = {false}
+                >
+                </TextInput>
+              </View>
+              
+              <View style ={styles.email}>
+                <TextInput type="text" style={styles.name} 
+                  placeholder = "Last Name" keyboardType = "name-phone-pad" textContentType = "nameSuffix" 
+                  onChangeText = {(text) => this.setState({"lastName": text})
+                                }
+                  value = {this.state.lastName}
+                  autoCompleteType = "name"
+                  autoCorrect = {false}
+                >
+                </TextInput>
+              </View>
 
               <View style ={styles.email}>
                 <TextInput type="text" style={styles.inputEmail} 
@@ -217,7 +249,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   email:{
-    flex:.4,
+    flex:.5,
     width: '100%',
     alignItems: "center",
     justifyContent: "space-around",
@@ -257,7 +289,21 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingLeft: '5%',
     height: '1%',
-    fontWeight: "bold"
+    fontWeight: "bold",
+    marginTop: '5%'
+  },
+  name:{
+    flex: 1,
+    textAlign: 'left',
+    width: '75%',
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 4,
+    borderRadius: 20,
+    paddingLeft: '5%',
+    height: '1%',
+    fontWeight: "bold",
+    marginTop: '4%'
   },
   inputPass:{
     flex:0.25,

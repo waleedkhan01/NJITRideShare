@@ -72,7 +72,11 @@ export default class BookableRides extends React.Component{
                   dateTime: child.val().dateTime,
                   startAddress: child.val().startAddress,
                   endAddress: child.val().endAddress,
-                  isHost: false
+                  isHost: false,
+                  hostName: child.val().hostName,
+                  clientNames: child.val().clientNames,
+                  driverPhoneNumber: child.val().hostName,
+                  driverEmail: child.val().hostEmail
                 });
               }
               else if(hostUID==auth){
@@ -81,7 +85,11 @@ export default class BookableRides extends React.Component{
                   dateTime: child.val().dateTime,
                   startAddress: child.val().startAddress,
                   endAddress: child.val().endAddress,
-                  isHost: true
+                  isHost: true,
+                  hostName: child.val().hostName,
+                  clientNames: child.val().clientNames,
+                  driverPhoneNumber: child.val().hostName,
+                  driverEmail: child.val().hostEmail
                 });
                 //Else if the current user is not aready a client for this booking, then push the data for the booking into the dictionary for bookings to show the user 
                 // dict.push({
@@ -98,7 +106,10 @@ export default class BookableRides extends React.Component{
                 dateTime: child.val().dateTime,
                 startAddress: child.val().startAddress,
                 endAddress: child.val().endAddress,
-                isHost: true
+                isHost: true,
+                hostName: child.val().hostName,
+                driverPhoneNumber: child.val().hostPhone,
+                driverEmail: child.val().hostEmail,
               });
             } 
           }
@@ -169,8 +180,10 @@ export default class BookableRides extends React.Component{
                       
                       <TouchableOpacity style={styles.item} onPress = { () => {
                 
+
+                                this.setState({ridePicked: item});
                                 this.toggleModal()
-                                this.state.ridePicked = item;
+                                
                                 // this.createAlert(item.dateTime, item.RID)
                                 console.log(item)
                                 }}>
@@ -192,6 +205,7 @@ export default class BookableRides extends React.Component{
 
                   keyExtractor={item => item.id}
                 />
+                { this.state.ridePicked!=undefined &&
                 <Modal
                   isVisible = {this.state.isVisible}
                   onBackdropPress={() => this.setState({ isVisible: false })}
@@ -208,14 +222,15 @@ export default class BookableRides extends React.Component{
                     <View style = {styles.modalTextContainer}>
                       <Text style = {styles.modalTextTitle}>Driver Name:</Text>
                       <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>Elizabeth Atelonias Harmonious</Text>
+                        <Text style = {styles.modalText}>{ this.state.ridePicked.hostName}</Text>
                       </View>
                     </View>
 
                     <View style = {styles.modalTextContainer}>
                       <Text style = {styles.modalTextTitle}>Driver Phone Number:</Text>
                       <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>732-354-6133</Text>
+                        
+                        <Text style = {styles.modalText}>123-456-7890</Text>
                       </View>
                     </View>
 
@@ -236,28 +251,21 @@ export default class BookableRides extends React.Component{
                     <View style = {styles.modalTextContainer}>
                       <Text style = {styles.modalTextTitle}>Start Address:</Text>
                       <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>Here</Text>
+                        <Text style = {styles.modalText}>{this.state.ridePicked.startAddress}</Text>
                       </View>
                     </View>
 
                     <View style = {styles.modalTextContainer}>
                       <Text style = {styles.modalTextTitle}>Destination:</Text>
                       <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>There</Text>
+                        <Text style = {styles.modalText}>{this.state.ridePicked.endAddress}</Text>
                       </View>
                     </View>
 
                     <View style = {styles.modalTextContainer}>
                       <Text style = {styles.modalTextTitle}>Pickup Time:</Text>
                       <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>12:05 PM</Text>
-                      </View>
-                    </View>
-
-                    <View style = {styles.modalTextContainer}>
-                      <Text style = {styles.modalTextTitle}>Destination:</Text>
-                      <View style = {styles.modalInfoContainer}>
-                        <Text style = {styles.modalText}>There</Text>
+                        <Text style = {styles.modalText}>{new Date(this.state.ridePicked.dateTime).toLocaleString({},{hour: '2-digit', minute:'2-digit'})}</Text>
                       </View>
                     </View>
 
@@ -269,6 +277,8 @@ export default class BookableRides extends React.Component{
                     </TouchableOpacity>
                   </View>
                 </Modal>
+                }
+                
               </View>
               }
               {
