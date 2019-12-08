@@ -12,8 +12,8 @@ export default class LandingScreen extends React.Component{
         super(props);
 
         this.state = {
-            userEmail : 'njit123@njit.edu',
-            userPassword: 'njit123',
+            userEmail : '',
+            userPassword: '',
             data: firebase.database(),
             auth: firebase.auth(),
             signInError: ''
