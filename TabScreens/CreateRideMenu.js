@@ -4,7 +4,7 @@ import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity} from 'rea
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
-import {firebaseConfig} from '../Screens/FirebaseHelper';
+import {firebaseConfig} from '../Helpers/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -14,7 +14,7 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Overlay } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
-import * as matchMaker from '../Screens/matchHelper';
+import * as matchMaker from '../Helpers/matchHelper';
 
 export default class CreateRideMenu extends React.Component{
     constructor(props){

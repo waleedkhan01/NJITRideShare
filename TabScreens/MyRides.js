@@ -5,13 +5,13 @@ import Constants from 'expo-constants';
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
-import {firebaseConfig} from '../Screens/FirebaseHelper';
+import {firebaseConfig} from '../Helpers/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 import Modal from "react-native-modal";
-import * as db from '../Screens/databaseHelper';
+import * as db from '../Helpers/databaseHelper';
 
 export default class BookableRides extends React.Component{
     constructor(props){
@@ -228,7 +228,7 @@ export default class BookableRides extends React.Component{
                         
                     </TouchableOpacity>}
 
-                  keyExtractor={item => item.RID}
+                  keyExtractor={item => item.SID}
                 />
                 { this.state.ridePicked!=undefined &&
                 <Modal

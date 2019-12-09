@@ -5,7 +5,7 @@ import {  ActivityIndicator, FlatList } from 'react-native';
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
-import {firebaseConfig} from '../Screens/FirebaseHelper';
+import {firebaseConfig} from '../Helpers/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -21,7 +21,7 @@ import moment from 'moment';
 
 
 
-import * as matchMaker from '../Screens/matchHelper';
+import * as matchMaker from '../Helpers/matchHelper';
 
 
 
@@ -261,12 +261,12 @@ export default class MatchScreen extends React.Component{
                 <View style = {styles.list}>
                   <Text style={styles.header}>Matched Rides</Text>
                     
-                  <FlatList syle ={"paddingBottom: 5%"}
+                  <FlatList syle ={"paddingBottom: 10%"}
                     data = {_.cloneDeep(this.state.listitems)}
                     renderItem={this.renderItem.bind(this)} // the bind gives that function the conext it need to get 'this' 
                     keyExtractor={item => item[0]}
                   />
-                              </View>
+                  </View>
                 </View>
               </View>        
             
@@ -282,16 +282,17 @@ export default class MatchScreen extends React.Component{
       width: '100%',
       flexDirection: 'column',
       backgroundColor: '#a8a8a8',
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      //backgroundColor :"red"
     },
     generic:{
       flex:1,
       width: '100%',
-      alignItems: "center",
+      alignItems: "center", 
       justifyContent: "space-around",
-      marginTop: Constants.statusBarHeight
-    
+      marginTop: Constants.statusBarHeight,
+      //backgroundColor:"green"
     },
     header:{
       flex:.15,
@@ -300,18 +301,20 @@ export default class MatchScreen extends React.Component{
       fontWeight: "800",
       fontSize: 33,
       textAlign: "center",
+      //backgroundColor:"blue"
     },
     item: {
       flex:1,
       flexDirection: 'row',
       backgroundColor: 'white',
-      padding: 10,
+      padding: 30,
       width: '100%',
       backgroundColor: 'white',
       borderColor: 'black',
       borderWidth: 2,
       borderRadius: 15,
-      marginBottom: 0
+      marginBottom: 10,
+      paddingBottom : "3%"
     },
     title: {
       fontSize: 24,

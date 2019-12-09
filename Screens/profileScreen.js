@@ -5,7 +5,7 @@ import {  ActivityIndicator, FlatList } from 'react-native';
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
-import {firebaseConfig} from '../Screens/FirebaseHelper';
+import {firebaseConfig} from '../Helpers/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';

@@ -3,23 +3,34 @@ import { StyleSheet, Text, View , TextInput, Button, TouchableOpacity} from 'rea
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
-import {firebaseConfig} from './FirebaseHelper';
+import {firebaseConfig} from '../Helpers/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
+import * as Font from 'expo-font';
+
 
 export default class LandingScreen extends React.Component{
     constructor(props){
         super(props);
 
         this.state = {
-            userEmail : '',
-            userPassword: '',
+            userEmail : 'njit123@njit.edu',
+            userPassword: 'njit123',
             data: firebase.database(),
             auth: firebase.auth(),
-            signInError: ''
+            signInError: '',
+            fontLoaded:false
         };
     }
-
+    async componentDidMount() {   
+      
+        await Font.loadAsync({
+          'njitfont': require('../assets/Fonts/TrajanProRegular.ttf'),
+        });
+    
+        this.setState({ fontLoaded: true });
+      
+    }
     async register(email, password){
       console.log("Navigating to registration screen");
       this.props.navigation.navigate('SignUpScreen');
@@ -52,11 +63,12 @@ export default class LandingScreen extends React.Component{
 
     render(){
       console.log(this.state.signInError);
-        return (
+        if ( this.state.fontLoaded ){
+          return (
             <View style={styles.container}>
 
               <View style ={styles.generic}>
-                <Text style={styles.header}>NJIT RideShare</Text>
+                <Text style={styles.headerNJIT }>NJIT RideShare</Text>
               </View>  
 
               <View style ={styles.spacer}/>
@@ -108,6 +120,13 @@ export default class LandingScreen extends React.Component{
 
             </View>
           );
+        }
+      else
+      {
+       return(   <View style ={styles.generic}>
+        <Text style={styles.noError}>Loading</Text>
+        </View>    )
+      }
     }
 }
 
@@ -142,6 +161,17 @@ const styles = StyleSheet.create({
     textShadowColor:'black',
     textShadowRadius: 2,
     fontWeight: "800",
+    fontSize: 33,
+    textAlign: "center"
+  },
+  headerNJIT:{
+    fontFamily: 'njitfont',
+    flex: 1,
+    paddingTop: "25%",
+    color: 'red',
+    textShadowColor:'black',
+    textShadowRadius: 2,
+    
     fontSize: 33,
     textAlign: "center"
   },

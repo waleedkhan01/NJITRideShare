@@ -5,7 +5,7 @@ import {  ActivityIndicator, FlatList } from 'react-native';
 import { blue, black, white } from 'ansi-colors';
 
 import * as firebase from 'firebase'; 
-import {firebaseConfig} from '../Screens/FirebaseHelper';
+import {firebaseConfig} from '../Helpers/FirebaseHelper';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -17,7 +17,7 @@ import StatusBarBackground from '../Screens/statusbar'
 
 import * as SMS from 'expo-sms';  // EXPO INSTALL expo-sms
 import * as MailComposer from 'expo-mail-composer'; //expo install expo-mail-composer
-import * as db from '../Screens/databaseHelper';
+import * as db from '../Helpers/databaseHelper';
 import { Linking } from 'expo';
 //*********************************************************************************************************************************** */
 export default class MatchDetail extends React.Component{
