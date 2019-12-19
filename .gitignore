@@ -14,3 +14,7 @@ web-report/
 .DS_Store
 /.vs
 TabScreens/BookableRides-save.js
+
+
+#API Stuff
+Helpers/FirebaseHelper.js
